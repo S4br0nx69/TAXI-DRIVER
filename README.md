@@ -13,7 +13,7 @@
 
 <br>
 
-R�solution de l'environnement **Taxi-v3** par apprentissage par renforcement model-free.<br>
+Résolution de l'environnement **Taxi-v3** par apprentissage par renforcement model-free.<br>
 Deux approches implémentées : **Q-Learning tabulaire** et **Deep Q-Learning (DQN)**.
 
 <br>

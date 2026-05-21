@@ -226,6 +226,6 @@ L'entraînement produit un dashboard matplotlib en temps réel :
 
 <div align="center">
 
-**Sabri.H* — Taxi Driver v1.0
+**Sabri.H* — Taxi Driver v1.0**
 
 </div>

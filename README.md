@@ -249,6 +249,6 @@ TAXI-DRIVER/
 
 <div align="center">
 
-**Sabri** — Taxi Driver v1.0*
+**Sabri** — Taxi Driver v1.0
 
 </div>

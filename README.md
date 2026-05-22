@@ -9,18 +9,17 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.12.0-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
 [![NumPy](https://img.shields.io/badge/NumPy-2.4.6-013243?style=for-the-badge&logo=numpy&logoColor=white)](https://numpy.org)
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.9-11557C?style=for-the-badge)](https://matplotlib.org)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 <br>
 
-Résolution de l'environnement **Taxi-v3** par apprentissage par renforcement model-free.<br>
-Deux approches implémentées : **Q-Learning tabulaire** et **Deep Q-Learning (DQN)**.
+R�solution de l'environnement **Taxi-v3** par apprentissage par renforcement model-free.<br>
+5 approches implémentées et comparées : **Brute-force**, **Q-Learning**, **SARSA**, **Monte Carlo** et **Deep Q-Learning (DQN)**.
 
 <br>
 
 [Installation](#-installation) •
-[Q-Learning](#-q-learning-tabulaire) •
-[Deep Q-Learning](#-deep-q-learning-dqn) •
+[Utilisation](#-utilisation) •
+[Algorithmes](#-algorithmes) •
 [Benchmark](#-benchmark) •
 [Architecture](#-architecture)
 
@@ -34,145 +33,196 @@ Deux approches implémentées : **Q-Learning tabulaire** et **Deep Q-Learning (D
 > Requiert **Python 3.11+** et `pip`.
 
 ```bash
-git clone <repo-url> && cd taxi-driver
-pip3 install -r requirements.txt
+git clone git@github.com:S4br0nx69/TAXI-DRIVER.git
+cd TAXI-DRIVER
+python3 -m venv .venv
+source .venv/bin/activate
+pip install gymnasium numpy matplotlib torch
+```
+
+---
+
+## 🚀 Utilisation
+
+Chaque algorithme se lance depuis son dossier :
+
+```bash
+source .venv/bin/activate
+
+# Q-Learning
+cd Q_learning && python3 main.py
+
+# SARSA
+cd Sarsa && python3 main.py
+
+# Monte Carlo
+cd MonteCarlo && python3 main.py
+
+# Deep Q-Learning
+cd deep_Q_learning && python3 main.py
+
+# Brute-force (baseline)
+cd .. && python3 bruteforce.py
+```
+
+### Modes d'exécution
+
+Au lancement, le programme propose deux modes :
+
+```
+╔══════════════════════════════════╗
+║     TAXI DRIVER — Q-Learning     ║
+╚══════════════════════════════════╝
+
+1. Mode utilisateur (réglage des hyperparamètres)
+2. Mode time-limited (paramètres optimisés)
+
+Choix [1/2] :
 ```
 
 <details>
-<summary><b>📋 Dépendances détaillées</b></summary>
+<summary><b>Mode 1 — Utilisateur</b></summary>
 
-| Package | Version | Usage |
-|---------|---------|-------|
-| `gymnasium` | `1.3.0` | Environnement Taxi-v3 |
-| `numpy` | `2.4.6` | Q-table, calculs matriciels |
-| `matplotlib` | `3.10.9` | Visualisation, graphiques de benchmark |
-| `torch` | `2.12.0` | Réseau de neurones (DQN) |
+L'utilisateur saisit chaque hyperparamètre manuellement (α, γ, ε, decay, etc.). Une valeur par défaut est proposée entre crochets — Entrée l'applique directement.
+
+```
+Nombre d'épisodes d'entraînement [25000] :
+Nombre d'épisodes de test [25] :
+Learning rate α [0.1] :
+Discount factor γ [0.6] :
+Epsilon initial [1.0] :
+Epsilon minimum [0.01] :
+Epsilon decay [0.9995] :
+Afficher les épisodes de test ? (o/n) [o] :
+```
 
 </details>
+
+<details>
+<summary><b>Mode 2 — Time-limited</b></summary>
+
+Paramètres pré-optimisés. L'utilisateur choisit uniquement le nombre d'épisodes et l'affichage visuel.
+
+```
+Nombre d'épisodes d'entraînement [10000] :
+Nombre d'épisodes de test [25] :
+Afficher les épisodes de test ? (o/n) [o] :
+
+Paramètres optimisés : α=0.1, γ=0.6, ε=1.0→0.01, decay=0.9995
+```
+
+</details>
+
+### Affichage visuel
+
+Lorsque l'affichage est activé (`o`), la grille Taxi-v3 est rendue en temps réel via matplotlib à chaque step de chaque épisode de test.
+
+### Outputs
+
+Le programme affiche :
+- Les logs d'entraînement tous les 1 000 épisodes (ε, reward moyen, steps)
+- Le bilan du training (mean reward, mean steps, mean penalties)
+- Les graphiques de convergence (sauvegardés en PNG)
+- Les résultats de test (average steps, penalties, reward)
+- Le temps d'exécution total
+- Le CVaR à 95% de niveau de confiance
+
+---
+
+## 🧠 Algorithmes
+
+<details>
+<summary><b>Brute-force (baseline)</b></summary>
+
+Agent aléatoire sans apprentissage. Sert de plancher de performance.
+- **Résultat** : 196 steps, -769 reward, 0% de succès
+- **Fichier** : `bruteforce.py` (racine du projet)
+
+</details>
+
+<details>
+<summary><b>Q-Learning tabulaire</b></summary>
+
+Algorithme off-policy. Q-table 500×6 mise à jour par la formule de Bellman à chaque step.
+- **Hyperparamètres** : α=0.1, γ=0.6, ε decay 1.0→0.01
+- **Résultat** : 27.84 steps, -8.52 reward, 0 pénalités (10k épisodes)
+- **Fichiers** : `Q_learning/q_learning.py`, `Q_learning/main.py`
+
+</details>
+
+<details>
+<summary><b>SARSA</b></summary>
+
+Algorithme on-policy. Mise à jour avec l'action réellement choisie au step suivant.
+- **Hyperparamètres** : α=0.2, γ=0.9, ε decay 1.0→0.01
+- **Résultat** : 13.72 steps, +7.28 reward, 0 pénalités (10k épisodes)
+- **Fichiers** : `Sarsa/sarsa.py`, `Sarsa/main.py`
+
+</details>
+
+<details>
+<summary><b>Monte Carlo (first-visit)</b></summary>
+
+Algorithme épisodique pur. Mise à jour en fin d'épisode avec le retour cumulé réel.
+- **Hyperparamètres** : α=0.05, γ=0.95, ε decay 1.0→0.01
+- **Résultat** : 95.60 steps, -83.84 reward, 0 pénalités (50k épisodes)
+- **Fichiers** : `MonteCarlo/monte_carlo.py`, `MonteCarlo/main.py`
+
+</details>
+
+<details>
+<summary><b>Deep Q-Learning (DQN)</b></summary>
+
+R�seau de neurones PyTorch (128→64, ReLU) avec experience replay et target network.
+- **Hyperparamètres** : lr=0.001, γ=0.99, ε decay 1.0→0.01, batch=64
+- **Résultat** : 12.56 steps, +8.44 reward, 0 pénalités (10k épisodes)
+- **Fichiers** : `deep_Q_learning/deep_q_learning.py`, `deep_Q_learning/main.py`
+- **Modèle** : sérialisé dans `dqn_model.pth` après entraînement
+
+</details>
+
+---
+
+## 📊 Benchmark
+
+| Algorithme | Épisodes | Mean Steps | Mean Reward | Pénalités | Temps |
+|---|---|---|---|---|---|
+| 🔴 Brute-force | — | 196.42 | -769.59 | 63.78 | 1.9s |
+| 🟡 Monte Carlo | 50 000 | 95.60 | -83.84 | 0.00 | 53s |
+| 🔵 Q-Learning | 10 000 | 27.84 | -8.52 | 0.00 | 27s |
+| 🟢 SARSA | 10 000 | 13.72 | +7.28 | 0.00 | 27s |
+| 🟣 DQN | 10 000 | 12.56 | +8.44 | 0.00 | 476s |
+
+> Le DQN obtient les meilleurs résultats (12.56 steps, +8.44 reward) mais SARSA offre le meilleur rapport performance/coût (97% de la performance du DQN en 17× moins de temps).
 
 ---
 
 ## 🏗 Architecture
 
 ```
-taxi-driver/
+TAXI-DRIVER/
 ├── Q_learning/
-│   └── q_learning.py           # Agent Q-Learning tabulaire
+│   ├── main.py              # Point d'entrée (2 modes)
+│   └── q_learning.py        # Classe Taxi — Q-Learning tabulaire
+├── Sarsa/
+│   ├── main.py
+│   └── sarsa.py             # Classe Sarsa — algorithme on-policy
+├── MonteCarlo/
+│   ├── main.py
+│   └── monte_carlo.py       # Classe MonteCarlo — first-visit
 ├── deep_Q_learning/
-│   └── deep_q_learning.py      # Agent DQN (PyTorch)
-├── img/                        # Captures & graphiques
+│   ├── main.py
+│   └── deep_q_learning.py   # Classe DQNAgent — PyTorch
+├── bruteforce.py             # Baseline random agent
 ├── requirements.txt
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
 ---
 
-## 🧠 Q-Learning tabulaire
-
-### Quickstart
-
-```python
-import q_learning as Taxi
-
-taxi = Taxi.Taxi('rgb_array')
-taxi.train(train_episodes=35000)
-taxi.test(test_episodes=5, timestamp=0.1, fast_testing=False, final_frame_pause=0)
-```
-
-### API Reference
-
-<details>
-<summary><code>Taxi(render_mode)</code> — Constructeur</summary>
-
-| Paramètre | Type | Description |
-|-----------|------|-------------|
-| `render_mode` | `str` | `"rgb_array"` → fenêtre matplotlib · `"ansi"` → rendu terminal |
-
-</details>
-
-<details>
-<summary><code>taxi.train(**kwargs)</code> — Entraînement</summary>
-
-| Paramètre | Type | Défaut | Description |
-|-----------|------|--------|-------------|
-| `train_episodes` | `int` | `25000` | Nombre d'épisodes d'entraînement |
-
-</details>
-
-<details>
-<summary><code>taxi.test(**kwargs)</code> — Évaluation</summary>
-
-| Paramètre | Type | Défaut | Description |
-|-----------|------|--------|-------------|
-| `test_episodes` | `int` | `1` | Nombre d'épisodes de test |
-| `timestamp` | `float` | `0.2` | Délai (s) entre chaque action |
-| `fast_testing` | `bool` | `False` | Désactive le rendu graphique |
-| `final_frame_pause` | `float` | `0` | Pause (s) sur la dernière frame |
-
-</details>
-
-### Outputs temps réel
-
-![Fenêtre de test](./img/testing_execution_window.png)
-
-| Métrique | Description |
-|----------|-------------|
-| `Action` | Dernière action exécutée |
-| `Reward` | Récompense instantanée |
-| `Episode reward` | Récompense cumulée de l'épisode |
-| `Episode` | Index de l'épisode en cours |
-
-### Résultat final
-
-![Résultats](./img/final_result.png)
-
-> Affiche le **mean steps**, **mean penalties** et **mean reward** sur tous les épisodes de test.
-
----
-
-## 🔥 Deep Q-Learning (DQN)
-
-### Quickstart
-
-```python
-import deep_q_learning as Taxi
-
-taxi = Taxi.QAgent()
-taxi.compile()
-taxi.fit()
-```
-
-### API Reference
-
-<details>
-<summary><code>QAgent.__init__()</code> — Hyperparamètres</summary>
-
-| Variable | Type | Description |
-|----------|------|-------------|
-| `model_class` | `nn.Module` | Architecture du réseau de neurones |
-| `memory` | `ReplayBuffer` | Gestionnaire du replay buffer (experience replay) |
-| `loss` | `callable` | Fonction de perte (`HuberLoss` par défaut) |
-| `lr` | `float` | Learning rate |
-| `gamma` | `float` | Facteur de discount |
-| `epsilon_decay` | `float` | Décroissance de l'exploration ε-greedy |
-| `batch_size` | `int` | Taille des mini-batches |
-
-</details>
-
-### Monitoring
-
-L'entraînement produit un dashboard matplotlib en temps réel :
-
-![Métriques DQN](./img/Metrics%20graph%20deep%20Q%20learning%20(3%20layers%20V2).png)
-
-> [!NOTE]
-> Le modèle est sérialisé automatiquement à la fin du training. Pas de fonction de test graphique dédiée — les métriques en temps réel et la barre de progression couvrent le suivi de convergence.
-
----
-
-## 🎯 Système de récompenses
-
-> Environnement : `Taxi-v3` — Grille 5×5, 4 destinations (R, G, Y, B), 6 actions.
+## 🎯 Système de récompenses (Taxi-v3)
 
 | Événement | Reward |
 |-----------|--------|
@@ -180,35 +230,8 @@ L'entraînement produit un dashboard matplotlib en temps réel :
 | Livraison réussie | `+20` |
 | Pickup / drop-off illégal | `-10` |
 
-> **State space :** 500 états discrets `(taxi_row, taxi_col, passenger_loc, destination)`
-> **Action space :** 6 actions `(South, North, East, West, Pickup, Dropoff)`
-
----
-
-## 📊 Benchmark
-
-| Algorithme | Mean Steps | Mean Reward | Convergence |
-|------------|-----------|-------------|-------------|
-| 🔴 Brute-force (random) | ~350 | — | — |
-| 🟡 Q-Learning (baseline) | ~50 | — | ~5k épisodes |
-| 🟢 Q-Learning (optimisé) | ~13 | ~7.5 | ~15k épisodes |
-| 🔵 Deep Q-Learning (DQN) | ~15 | ~7.0 | ~10k épisodes |
-
-> [!TIP]
-> Les valeurs ci-dessus sont indicatives. Consultez le rapport de benchmark pour les résultats détaillés avec variance et intervalles de confiance.
-
-<details>
-<summary><b>📈 Métriques de benchmark collectées</b></summary>
-
-- Mean reward per episode
-- Mean steps per episode
-- Mean penalties (illegal actions) per episode
-- Convergence speed (épisodes avant stabilisation)
-- Reward variance & écart-type
-- Temps d'entraînement (wall-clock)
-- Impact des hyperparamètres (α, γ, ε) sur la convergence
-
-</details>
+> **State space** : 500 états discrets `(taxi_row, taxi_col, passenger_loc, destination)`
+> **Action space** : 6 actions `(South, North, East, West, Pickup, Dropoff)`
 
 ---
 
@@ -226,6 +249,6 @@ L'entraînement produit un dashboard matplotlib en temps réel :
 
 <div align="center">
 
-**Sabri.H* — Taxi Driver v1.0**
+**Sabri** — Taxi Driver v1.0*
 
 </div>

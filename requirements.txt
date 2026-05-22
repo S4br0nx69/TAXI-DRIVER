@@ -1,4 +1,5 @@
-echo "gymnasium==1.3.0
+gymnasium[toy-text]==1.3.0
 numpy==2.4.6
 matplotlib==3.10.9
-torch==2.12.0" > requirements.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu

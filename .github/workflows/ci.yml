@@ -1,0 +1,44 @@
+name: CI — Taxi Driver
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install gymnasium[toy-text] numpy matplotlib
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Run unit tests
+        run: python -m pytest tests/ -v
+
+      - name: Run bruteforce smoke test
+        run: python bruteforce.py
+
+      - name: Run Q-Learning smoke test
+        run: |
+          cd Q_learning
+          python -c "
+          import q_learning as Taxi
+          taxi = Taxi.Taxi('ansi')
+          taxi.train(train_episodes=100, training_graph=False)
+          s, p, r = taxi.test(test_episodes=5, fast_testing=True)
+          assert s < 200, 'Steps too high'
+          assert p == 0, 'Penalties detected'
+          print('Q-Learning smoke test passed')
+          "

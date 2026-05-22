@@ -1,0 +1,38 @@
+services:
+  q-learning:
+    build: .
+    command: ["Q_learning/main.py"]
+    volumes:
+      - ./Q_learning:/app/Q_learning
+    stdin_open: true
+    tty: true
+
+  sarsa:
+    build: .
+    command: ["Sarsa/main.py"]
+    volumes:
+      - ./Sarsa:/app/Sarsa
+    stdin_open: true
+    tty: true
+
+  montecarlo:
+    build: .
+    command: ["MonteCarlo/main.py"]
+    volumes:
+      - ./MonteCarlo:/app/MonteCarlo
+    stdin_open: true
+    tty: true
+
+  dqn:
+    build: .
+    command: ["deep_Q_learning/main.py"]
+    volumes:
+      - ./deep_Q_learning:/app/deep_Q_learning
+    stdin_open: true
+    tty: true
+
+  bruteforce:
+    build: .
+    command: ["bruteforce.py"]
+    stdin_open: true
+    tty: true

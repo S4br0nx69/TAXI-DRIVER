@@ -1,11 +1,14 @@
 # Politique de sécurité
 
 ## Versions supportées
+## Dépendances
 
-| Version | Supportée |
-|---------|-----------|
-| 1.4.x   | ✅         |
-| < 1.4   | ❌         |
+| Package | Version | CVE connues |
+|---------|---------|-------------|
+| ![Gymnasium](https://img.shields.io/badge/Gymnasium-1.3.0-0081A5?style=flat-square) | 1.3.0 | Aucune |
+| ![NumPy](https://img.shields.io/badge/NumPy-2.4.6-013243?style=flat-square&logo=numpy&logoColor=white) | 2.4.6 | Aucune |
+| ![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.9-11557C?style=flat-square) | 3.10.9 | Aucune |
+| ![PyTorch](https://img.shields.io/badge/PyTorch-2.12.0-EE4C2C?style=flat-square&logo=pytorch&logoColor=white) | 2.12.0 | Aucune |
 
 ## Signaler une vulnérabilité
 

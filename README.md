@@ -247,6 +247,26 @@ TAXI-DRIVER/
 
 ---
 
+## 🐳 Dockerisation du projet
+
+> [!NOTE]
+> Le projet est en cours de dockerisation pour garantir la reproductibilité sur n'importe quelle machine.
+
+```bash
+# Build
+docker compose build
+
+# Lancer un algo
+docker compose run --rm q-learning Q_learning/main.py
+docker compose run --rm sarsa Sarsa/main.py
+docker compose run --rm montecarlo MonteCarlo/main.py
+docker compose run --rm dqn deep_Q_learning/main.py
+docker compose run --rm bruteforce bruteforce.py
+```
+
+Plus besoin de venv, de `pip install` ou de `python3-tk` — Docker embarque tout.
+---
+
 <div align="center">
 
 **Sabri** — Taxi Driver v1.0

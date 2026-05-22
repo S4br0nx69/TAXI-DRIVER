@@ -15,7 +15,7 @@
 
 <br>
 
-R�solution de l'environnement **Taxi-v3** par apprentissage par renforcement model-free.<br>
+Résolution de l'environnement **Taxi-v3** par apprentissage par renforcement model-free.<br>
 5 approches implémentées et comparées : **Brute-force**, **Q-Learning**, **SARSA**, **Monte Carlo** et **Deep Q-Learning (DQN)**.
 
 <br>

@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pth
+.git/
+.gitignore
+*.md
+LICENSE
+TAXI-DRIVER_AI.pdf
+img/

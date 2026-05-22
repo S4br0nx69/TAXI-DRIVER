@@ -38,4 +38,4 @@ Bornes appliquées :
 
 Les 4 fichiers `main.py` (Q_learning, Sarsa, MonteCarlo, deep_Q_learning) ont été modifiés pour importer les fonctions de validation depuis `utils.py` via `sys.path.append('..')`. Chaque appel `int(input(...))` a été remplacé par `safe_input_int()` et chaque `float(input(...))` par `safe_input_float()`, avec les bornes adaptées à chaque algorithme.
 
-Cette modification est transparente pour l'utilisateur : le comportement par défaut (Entrée = valeur par défaut) reste identique. La différence se manifeste uniquement en cas de saisie invalide, où le programme affiche un message explicatif et applique la valeur par défaut au lieu de crasher.
+Cette modification est transparente pour l'utilisateur, le comportement par défaut (Entrée = valeur par défaut) reste identique. La différence se manifeste uniquement en cas de saisie invalide, où le programme affiche un message explicatif et applique la valeur par défaut au lieu de crasher.

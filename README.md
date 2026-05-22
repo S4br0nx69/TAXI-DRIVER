@@ -11,6 +11,7 @@
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.9-11557C?style=for-the-badge)](https://matplotlib.org)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![Portainer](https://img.shields.io/badge/Portainer-CE-13BEF9?style=for-the-badge&logo=portainer&logoColor=white)](https://portainer.io)
+[![CI](https://github.com/S4br0nx69/TAXI-DRIVER/actions/workflows/ci.yml/badge.svg)](https://github.com/S4br0nx69/TAXI-DRIVER/actions/workflows/ci.yml)
 
 <br>
 
@@ -24,6 +25,7 @@ R�solution de l'environnement **Taxi-v3** par apprentissage par renforcement m
 [Utilisation](#-utilisation) •
 [Algorithmes](#-algorithmes) •
 [Benchmark](#-benchmark) •
+[Tests & CI/CD](#-tests--cicd) •
 [Sécurité](#-sécurité) •
 [Architecture](#-architecture)
 
@@ -252,6 +254,63 @@ R�seau de neurones PyTorch (128→64, ReLU) avec experience replay et target n
 
 ---
 
+## 🧪 Tests & CI/CD
+
+### Tests unitaires
+
+```bash
+source .venv/bin/activate
+python -m pytest tests/ -v
+```
+
+<details>
+<summary><b>7 tests — détail</b></summary>
+
+| Test | Cible | Vérifie |
+|------|-------|---------|
+| `test_bruteforce` | `bruteforce.py` | Résultats cohérents (steps > 0, reward < 0, 0% succès) |
+| `test_qlearning_train` | `q_learning.py` | `train()` retourne un `np.ndarray` de la bonne taille |
+| `test_qlearning_convergence` | `q_learning.py` | Après 10k épisodes : steps < 100, 0 pénalités |
+| `test_sarsa_train` | `sarsa.py` | `train()` retourne un `np.ndarray` de la bonne taille |
+| `test_montecarlo_train` | `monte_carlo.py` | `train()` retourne un `np.ndarray` de la bonne taille |
+| `test_utils_safe_input_int` | `utils.py` | Gère texte, hors bornes, valeur valide |
+| `test_utils_safe_input_float` | `utils.py` | Gère texte, hors bornes, valeur valide |
+
+</details>
+
+### CI/CD — GitHub Actions
+
+Chaque push sur `main` et chaque pull request déclenche automatiquement :
+- Installation des dépendances (Gymnasium, NumPy, Matplotlib, PyTorch CPU, pytest)
+- Exécution des 7 tests unitaires
+- Smoke test du brute-force
+- Smoke test du Q-Learning (5000 épisodes d'entraînement + validation)
+
+> Le workflow est défini dans [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+### Grid Search
+
+Optimisation automatisée des hyperparamètres du Q-Learning (48 combinaisons de α, γ, decay) :
+
+```bash
+python grid_search.py
+```
+
+<details>
+<summary><b>Paramètres testés</b></summary>
+
+| Paramètre | Valeurs |
+|-----------|---------|
+| α (learning rate) | 0.05, 0.1, 0.2, 0.3 |
+| γ (discount factor) | 0.6, 0.8, 0.9, 0.99 |
+| ε decay | 0.999, 0.9995, 0.9999 |
+
+Le script affiche la meilleure combinaison trouvée avec les steps et reward correspondants.
+
+</details>
+
+---
+
 ## 🔒 Sécurité
 
 <details>
@@ -273,20 +332,26 @@ R�seau de neurones PyTorch (128→64, ReLU) avec experience replay et target n
 
 ```
 TAXI-DRIVER/
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # Pipeline CI/CD GitHub Actions
+├── tests/
+│   └── test_agents.py        # 7 tests unitaires (pytest)
 ├── Q_learning/
-│   ├── main.py              # Point d'entrée (2 modes)
-│   └── q_learning.py        # Classe Taxi — Q-Learning tabulaire
+│   ├── main.py               # Point d'entrée (2 modes)
+│   └── q_learning.py         # Classe Taxi — Q-Learning tabulaire
 ├── Sarsa/
 │   ├── main.py
-│   └── sarsa.py             # Classe Sarsa — algorithme on-policy
+│   └── sarsa.py              # Classe Sarsa — algorithme on-policy
 ├── MonteCarlo/
 │   ├── main.py
-│   └── monte_carlo.py       # Classe MonteCarlo — first-visit
+│   └── monte_carlo.py        # Classe MonteCarlo — first-visit
 ├── deep_Q_learning/
 │   ├── main.py
-│   └── deep_q_learning.py   # Classe DQNAgent — PyTorch
-├── bruteforce.py             # Baseline random agent
-├── utils.py                  # Validation sécurisée des entrées
+│   └── deep_q_learning.py    # Classe DQNAgent — PyTorch
+├── bruteforce.py              # Baseline random agent
+├── grid_search.py             # Optimisation des hyperparamètres
+├── utils.py                   # Validation sécurisée des entrées
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
@@ -323,11 +388,13 @@ TAXI-DRIVER/
 | Deep Learning | PyTorch | `2.12.0` |
 | Containerisation | Docker | `latest` |
 | Supervision | Portainer CE | `latest` |
+| Tests | pytest | `9.0.3` |
+| CI/CD | GitHub Actions | — |
 
 ---
 
 <div align="center">
 
-**Sabri Hammi** — Taxi Driver v2.0 
+**Sabri Hammi** — Taxi Driver v2.0
 
 </div>

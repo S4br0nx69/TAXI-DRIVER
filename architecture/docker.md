@@ -248,3 +248,79 @@ Chaque service a été testé individuellement en mode time-limited :
 ## 9. Workflow Git
 
 La dockerisation a été réalisée sur une branche dédiée `features/docker`, la branche a été mergée sur `main` après validation de tous les services.
+
+## 10. Supervision avec Portainer
+ 
+### 10.1 Objectif
+ 
+Les containers d'entraînement sont éphémères : ils s'exécutent le temps du training puis se ferment. Sans outil de supervision, il est impossible de suivre en temps réel l'état des containers, leur consommation mémoire ou leurs logs sans passer par la ligne de commande.
+ 
+Portainer Community Edition a été ajouté pour fournir une interface web de supervision accessible sur `https://localhost:9443`.
+ 
+### 10.2 Configuration
+ 
+Le service Portainer a été ajouté au `docker-compose.yml` :
+ 
+```yaml
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    restart: unless-stopped
+ 
+volumes:
+  portainer_data:
+```
+ 
+### 10.3 Choix techniques
+ 
+**`/var/run/docker.sock`**
+Le montage du socket Docker donne à Portainer un accès direct à l'API Docker de la machine hôte. C'est ce qui lui permet de lister, démarrer, arrêter et inspecter tous les containers sans configuration supplémentaire.
+ 
+**`portainer_data`**
+Un volume nommé persiste la configuration Portainer (compte admin, préférences, historique) entre les redémarrages. Sans ce volume, chaque `docker compose down` forcerait à recréer le compte admin.
+ 
+**`restart: unless-stopped`**
+Portainer redémarre automatiquement avec le système, contrairement aux containers RL qui sont éphémères. Cela garantit que l'interface de supervision est toujours disponible sans intervention manuelle.
+ 
+**Port `9443`**
+Portainer utilise HTTPS par défaut sur le port 9443. Le certificat est auto-signé, le navigateur affiche un avertissement de sécurité au premier accès.
+ 
+### 10.4 Fonctionnalités utilisées
+ 
+| Fonctionnalité | Description |
+|----------------|-------------|
+| Container list | Vue d'ensemble de tous les containers (état, image, IP, ports) |
+| Logs | Consultation des logs d'entraînement en temps réel sans terminal |
+| Stats | Monitoring CPU/RAM de chaque container pendant l'exécution |
+| Quick actions | Arrêt, redémarrage, suppression d'un container depuis l'interface |
+| Images | Gestion des images Docker construites par le projet |
+| Volumes | Inspection des volumes montés (données Portainer, dossiers algo) |
+ 
+### 10.5 Utilisation
+ 
+```bash
+# Démarrer Portainer
+docker compose up -d portainer
+ 
+# Accéder à l'interface
+# https://localhost:9443
+ 
+# Lancer un algo (visible dans Portainer pendant l'exécution)
+docker compose run q-learning
+```
+ 
+Au premier accès, Portainer demande la création d'un compte administrateur. Les containers d'entraînement apparaissent en statut "running" pendant l'exécution et disparaissent à la fin si lancés avec `--rm`.
+ 
+### 10.6 Workflow Git
+ 
+L'ajout de Portainer a été réalisé sur une branche dédiée `features/portainer` :
+ 
+```
+feat(portainer): add Portainer CE for container monitoring
+```
+ 
+La branche a été mergée sur `main` après validation de la supervision de tous les services.

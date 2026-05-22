@@ -263,8 +263,8 @@ docker compose run --rm montecarlo MonteCarlo/main.py
 docker compose run --rm dqn deep_Q_learning/main.py
 docker compose run --rm bruteforce bruteforce.py
 ```
-
 Plus besoin de venv, de `pip install` ou de `python3-tk` — Docker embarque tout.
+
 ---
 
 <div align="center">

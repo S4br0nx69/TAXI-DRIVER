@@ -1,6 +1,5 @@
 # Politique de sécurité
 
-## Versions supportées
 ## Dépendances
 
 | Package | Version | CVE connues |
@@ -9,6 +8,7 @@
 | ![NumPy](https://img.shields.io/badge/NumPy-2.4.6-013243?style=flat-square&logo=numpy&logoColor=white) | 2.4.6 | Aucune |
 | ![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.9-11557C?style=flat-square) | 3.10.9 | Aucune |
 | ![PyTorch](https://img.shields.io/badge/PyTorch-2.12.0-EE4C2C?style=flat-square&logo=pytorch&logoColor=white) | 2.12.0 | Aucune |
+| pytest | `9.0.3` |
 
 ## Signaler une vulnérabilité
 

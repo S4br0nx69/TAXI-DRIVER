@@ -10,7 +10,7 @@ def cvar_metrics(reward_array):
     confidence_level = 0.95
     percentile_index = int((1 - confidence_level) * len(reward_array))
     sorted_rewards = np.sort(reward_array)
-    cvar = sorted_rewards[:percentile_index + 1].mean()
+    cvar = sorted_rewards[: percentile_index + 1].mean()
     print(f"CVaR à {confidence_level} de niveau de confiance : {cvar}")
 
 
@@ -25,9 +25,11 @@ def user_mode():
     epsilon = float(input("Epsilon initial [1.0] : ") or 1.0)
     epsilon_min = float(input("Epsilon minimum [0.01] : ") or 0.01)
     epsilon_decay = float(input("Epsilon decay [0.9995] : ") or 0.9995)
-    display = input("Afficher les épisodes de test ? (o/n) [o] : ").strip().lower() or "o"
+    display = (
+        input("Afficher les épisodes de test ? (o/n) [o] : ").strip().lower() or "o"
+    )
 
-    taxi = Taxi.Taxi('rgb_array')
+    taxi = Taxi.Taxi("rgb_array")
     taxi.alpha = alpha
     taxi.gamma = gamma
     taxi.epsilon = epsilon
@@ -39,10 +41,12 @@ def user_mode():
     train_time = round(time.time() - start, 2)
 
     fast = display != "o"
-    taxi.test(test_episodes=test_episodes,
-              timestamp=0.3,
-              fast_testing=fast,
-              final_frame_pause=1)
+    taxi.test(
+        test_episodes=test_episodes,
+        timestamp=0.3,
+        fast_testing=fast,
+        final_frame_pause=1,
+    )
 
     print(f"\nTrain execution time: {train_time}s")
     cvar_metrics(reward_array)
@@ -54,28 +58,34 @@ def time_limited_mode():
 
     train_episodes = int(input("Nombre d'épisodes d'entraînement [10000] : ") or 10000)
     test_episodes = int(input("Nombre d'épisodes de test [25] : ") or 25)
-    display = input("Afficher les épisodes de test ? (o/n) [o] : ").strip().lower() or "o"
+    display = (
+        input("Afficher les épisodes de test ? (o/n) [o] : ").strip().lower() or "o"
+    )
 
     # Paramètres optimisés
-    taxi = Taxi.Taxi('rgb_array')
+    taxi = Taxi.Taxi("rgb_array")
     taxi.alpha = 0.1
     taxi.gamma = 0.6
     taxi.epsilon = 1.0
     taxi.epsilon_min = 0.01
     taxi.epsilon_decay = 0.9995
 
-    print(f"\nParamètres optimisés : α={taxi.alpha}, γ={taxi.gamma}, "
-          f"ε={taxi.epsilon}→{taxi.epsilon_min}, decay={taxi.epsilon_decay}\n")
+    print(
+        f"\nParamètres optimisés : α={taxi.alpha}, γ={taxi.gamma}, "
+        f"ε={taxi.epsilon}→{taxi.epsilon_min}, decay={taxi.epsilon_decay}\n"
+    )
 
     start = time.time()
     reward_array = taxi.train(train_episodes=train_episodes, training_graph=True)
     train_time = round(time.time() - start, 2)
 
     fast = display != "o"
-    taxi.test(test_episodes=test_episodes,
-              timestamp=0.3,
-              fast_testing=fast,
-              final_frame_pause=1)
+    taxi.test(
+        test_episodes=test_episodes,
+        timestamp=0.3,
+        fast_testing=fast,
+        final_frame_pause=1,
+    )
 
     print(f"\nTrain execution time: {train_time}s")
     cvar_metrics(reward_array)

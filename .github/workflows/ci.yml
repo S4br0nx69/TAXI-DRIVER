@@ -41,3 +41,44 @@ jobs:
           assert s < 200, 'Steps too high'
           print('Q-Learning smoke test passed')
           "
+
+  mlops:
+    runs-on: ubuntu-latest
+    env:
+      GIT_PYTHON_REFRESH: quiet
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install MLOps dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "gymnasium[toy-text]" numpy matplotlib pytest httpx
+          pip install mlflow==2.19.0 PyYAML==6.0.2 fastapi "uvicorn[standard]"
+
+      - name: Run MLOps unit tests
+        run: python -m pytest tests/test_mlops.py -v
+
+      - name: Train + register (SARSA converge sous le garde-fou)
+        run: |
+          python -m mlops.train sarsa --episodes 8000 --test-episodes 50 --seed 42 --register
+
+      - name: Serving smoke test (API d'inférence)
+        run: |
+          python -c "
+          from fastapi.testclient import TestClient
+          from mlops.serve.app import app
+          with TestClient(app) as c:
+              assert c.get('/health').json()['status'] == 'ok'
+              assert c.get('/health').json()['model_loaded'] is True, 'champion non promu'
+              r = c.post('/predict', json={'state': 0})
+              assert r.status_code == 200, r.text
+              assert 'action' in r.json()
+              assert c.post('/predict', json={'state': 99999}).status_code == 422
+          print('Serving smoke test passed')
+          "

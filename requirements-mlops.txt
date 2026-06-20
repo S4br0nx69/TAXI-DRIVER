@@ -1,0 +1,5 @@
+# Dépendances de la couche MLOps (en plus de requirements.txt).
+# Installées dans les images d'entraînement instrumenté et de pipeline.
+-r requirements.txt
+mlflow==2.19.0
+PyYAML==6.0.2

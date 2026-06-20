@@ -1,0 +1,52 @@
+# Configuration centralisée des expériences MLOps — Taxi Driver
+#
+# Source unique de vérité pour les hyperparamètres. Consommée par
+# mlops/train.py et mlops/pipeline.py. Surchargeable en CLI (ex: --episodes).
+#
+# Les valeurs par défaut reprennent celles validées dans chaque agent.
+
+# Paramètres globaux appliqués à tous les runs.
+defaults:
+  seed: 42              # graine de reproductibilité
+  env_version: v4       # Taxi-v4 (fallback automatique sur v3)
+  train_episodes: 10000
+  test_episodes: 50
+
+# Hyperparamètres par algorithme.
+algorithms:
+  qlearning:
+    alpha: 0.1          # learning rate
+    gamma: 0.6          # discount factor
+    epsilon: 1.0        # exploration initiale
+    epsilon_min: 0.01
+    epsilon_decay: 0.9995
+
+  sarsa:
+    alpha: 0.2
+    gamma: 0.9
+    epsilon: 1.0
+    epsilon_min: 0.01
+    epsilon_decay: 0.999
+
+  montecarlo:
+    alpha: 0.05
+    gamma: 0.95
+    epsilon: 1.0
+    epsilon_min: 0.01
+    epsilon_decay: 0.9997
+    train_episodes: 50000   # MC converge plus lentement (override du défaut)
+
+  dqn:
+    lr: 0.001
+    gamma: 0.99
+    epsilon: 1.0
+    epsilon_min: 0.01
+    epsilon_decay: 0.9995
+    batch_size: 64
+
+# Critère de promotion d'un modèle dans le registry (Phase 3).
+# Un modèle n'est promu "champion" que s'il respecte ces seuils.
+promotion:
+  metric: mean_reward   # métrique de comparaison (maximisée)
+  max_steps: 30         # garde-fou : steps moyens en test
+  max_penalties: 0      # aucune pénalité tolérée

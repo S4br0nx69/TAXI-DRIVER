@@ -1,4 +1,4 @@
-# Rapport technique — Mise en place MLOps du projet Taxi Driver
+# Rapport technique : Mise en place MLOps du projet Taxi Driver
 
 ## 1. Contexte et objectif
 
@@ -11,8 +11,8 @@ modèle DQN sauvegardé dans un `.pth` isolé sans métadonnées.
 L'objectif de la mise en place MLOps est d'industrialiser le cycle de vie des
 modèles : **reproductibilité**, **traçabilité des expériences**, **versioning
 des modèles**, **promotion automatique** du meilleur, **serving** via une API,
-et **automatisation** dans la CI. Le tout reste **100 % local** — aucun serveur
-distant, aucun appel réseau sortant — pour rester cohérent avec la posture de
+et **automatisation** dans la CI. Le tout reste **100 % local**, aucun serveur
+distant, aucun appel réseau sortant pour rester cohérent avec la posture de
 sécurité du projet (voir `SECURITY.md`).
 
 La mise en place a été menée **phase par phase**, chaque phase validée par
@@ -45,7 +45,7 @@ mlops/
 | `Makefile` | orchestration des commandes via Docker |
 | `tests/test_mlops.py` | 8 tests unitaires de la couche MLOps |
 
-## 3. Phase 1 — Reproductibilité & configuration
+## 3. Phase 1 : Reproductibilité & configuration
 
 ### 3.1 Seeds globaux (`seeding.py`)
 
@@ -53,7 +53,7 @@ mlops/
 impliqués : `random` (epsilon-greedy, `action_space.sample`), NumPy, PyTorch
 (import paresseux, seul le DQN en dépend) et l'environnement Gymnasium
 (`env.action_space.seed` + `env.reset(seed=...)`). Deux runs avec le même seed
-produisent désormais des résultats identiques — condition de base du MLOps.
+produisent désormais des résultats identiques, condition de base du MLOps.
 
 ### 3.2 Configuration centralisée (`config.yaml` + `config.py`)
 
@@ -63,7 +63,7 @@ claire : **defaults globaux < hyperparamètres de l'algo < overrides CLI**. Les
 valeurs `None` (options CLI non fournies) sont ignorées pour ne pas écraser les
 défauts.
 
-## 4. Phase 2 — Suivi d'expériences (MLflow)
+## 4. Phase 2 : Suivi d'expériences (MLflow)
 
 ### 4.1 Backend fichier local
 
@@ -86,7 +86,7 @@ port 5000).
 Le choix `GIT_PYTHON_REFRESH=quiet` neutralise l'introspection git de MLflow,
 inutile et bruyante en container.
 
-## 5. Phase 3 — Model registry & versioning
+## 5. Phase 3 : Model registry & versioning
 
 ### 5.1 Pourquoi un registry fichier maison
 
@@ -96,14 +96,14 @@ donc un registry fichier inspectable sous `models/<algo>/`, avec un index
 `registry.json` (liste des versions + champion courant) et un dossier `vN/` par
 version (`policy.npy`, modèle brut, `metadata.json`).
 
-### 5.2 Policy greedy uniforme — clé du serving léger
+### 5.2 Policy greedy uniforme la clé du serving léger
 
 `extract_policy(agent)` extrait, quel que soit l'algorithme, une **policy
 greedy** : un vecteur `[n_states]` donnant l'action optimale par état discret.
 - agents tabulaires : `argmax(q_table, axis=1)` ;
 - DQN : argmax du réseau évalué sur l'encodage one-hot des 500 états.
 
-Conséquence majeure : le serving n'a besoin que de `policy.npy` (4 Ko) + numpy —
+Conséquence majeure : le serving n'a besoin que de `policy.npy` (4 Ko) + numpy ,
 **ni torch, ni l'architecture du réseau**, quel que soit l'algorithme d'origine.
 
 ### 5.3 Promotion automatique
@@ -116,7 +116,7 @@ Une version devient **champion** (`stage=Production`) si :
 L'ancien champion est rétrogradé. Ces seuils sont déclaratifs dans
 `config.yaml` (section `promotion`).
 
-## 6. Phase 4 — Serving (API FastAPI)
+## 6. Phase 4 : Serving (API FastAPI)
 
 ### 6.1 Image dédiée et légère
 
@@ -137,7 +137,7 @@ La variable `TAXI_SERVE_ALGORITHM` choisit le modèle servi : un algo précis, o
 `auto` (meilleur champion tous algos confondus, via `registry.best_algorithm`).
 Les états hors bornes renvoient `422`, l'absence de champion `503`.
 
-## 7. Phase 5 — Pipeline & CI/CD
+## 7. Phase 5 : Pipeline & CI/CD
 
 ### 7.1 Pipeline d'orchestration (`pipeline.py`)
 

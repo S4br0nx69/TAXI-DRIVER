@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-06-21T12:20:31.439516",
+  "models": {
+    "q_learning": {
+      "params": {
+        "alpha": 0.2,
+        "gamma": 0.99,
+        "epsilon_decay": 0.999
+      },
+      "metrics": {
+        "reward": -94.8,
+        "steps": 105.3,
+        "penalties": 0.0
+      }
+    },
+    "sarsa": {
+      "params": {
+        "alpha": 0.2,
+        "gamma": 0.99,
+        "epsilon_decay": 0.999,
+        "policy_type": "expected",
+        "n_steps": 3,
+        "temperature": 1.0
+      },
+      "metrics": {
+        "reward": -317.0,
+        "steps": 143.3,
+        "penalties": 20.0
+      }
+    },
+    "monte_carlo": {
+      "params": {
+        "alpha": 0.05,
+        "gamma": 0.9,
+        "epsilon_decay": 0.9995,
+        "visit_mode": "every_visit"
+      },
+      "metrics": {
+        "reward": -200.0,
+        "steps": 200.0,
+        "penalties": 0.0
+      }
+    },
+    "dqn": {
+      "params": {
+        "gamma": 0.99,
+        "epsilon_decay": 0.9995,
+        "lr": 0.0005,
+        "batch_size": 64,
+        "target_update": 10,
+        "optimizer_type": "rmsprop"
+      },
+      "metrics": {
+        "reward": 8.5,
+        "steps": 12.5,
+        "penalties": 0.0
+      }
+    }
+  }
+}

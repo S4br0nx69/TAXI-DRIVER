@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-06-21T10:30:58.999978",
+  "models": {
+    "q_learning": {
+      "params": {
+        "alpha": 0.1,
+        "gamma": 0.6,
+        "epsilon_decay": 0.9995
+      },
+      "metrics": {
+        "reward": -168.34,
+        "steps": 171.49,
+        "penalties": 0.0
+      }
+    },
+    "sarsa": {
+      "params": {
+        "alpha": 0.2,
+        "gamma": 0.9,
+        "epsilon_decay": 0.999,
+        "policy_type": "epsilon_greedy",
+        "n_steps": 1,
+        "temperature": 1.0
+      },
+      "metrics": {
+        "reward": -117.13,
+        "steps": 125.53,
+        "penalties": 0.0
+      }
+    },
+    "monte_carlo": {
+      "params": {
+        "alpha": 0.05,
+        "gamma": 0.95,
+        "epsilon_decay": 0.9997,
+        "visit_mode": "first_visit"
+      },
+      "metrics": {
+        "reward": -379.28,
+        "steps": 200.0,
+        "penalties": 19.92
+      }
+    },
+    "dqn": {
+      "params": {
+        "gamma": 0.99,
+        "epsilon_decay": 0.9995,
+        "lr": 0.001,
+        "batch_size": 64,
+        "target_update": 10,
+        "optimizer_type": "adam"
+      },
+      "metrics": {
+        "reward": 8.18,
+        "steps": 12.82,
+        "penalties": 0.0
+      }
+    }
+  }
+}

@@ -21,10 +21,10 @@ class Taxi:
             self.env = gym.make(f"Taxi-{fallback}", render_mode=render_mode)
         self.q_table = np.zeros([self.env.observation_space.n, self.env.action_space.n])
 
-        # Hyperparamètres par défaut
-        self.alpha = 0.1        # Learning rate
-        self.gamma = 0.6        # Discount factor
-        self.epsilon = 1.0      # Exploration rate initiale
+        # Hyperparamètres communs
+        self.alpha = 0.1
+        self.gamma = 0.6
+        self.epsilon = 1.0
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.9995
 

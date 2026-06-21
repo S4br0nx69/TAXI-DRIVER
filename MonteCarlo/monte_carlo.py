@@ -28,12 +28,15 @@ class MonteCarlo:
 
         self.q_table = np.zeros([self.env.observation_space.n, self.env.action_space.n])
 
-        # Hyperparamètres par défaut
-        self.alpha = 0.05       # Learning rate (incremental MC)
+        # Hyperparamètres communs
+        self.alpha = 0.05
         self.gamma = 0.95
         self.epsilon = 1.0
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.9997
+
+        # Hyperparamètres individuels Monte Carlo
+        self.visit_mode = 'first_visit'  # 'first_visit' ou 'every_visit'
 
     def _choose_action(self, state):
         """Sélection epsilon-greedy."""
@@ -70,16 +73,15 @@ class MonteCarlo:
                 steps += 1
                 state = next_state
 
-            # First-visit MC : mise à jour avec learning rate
+            # Mise à jour MC selon visit_mode
             G = 0
             visited = set()
             for state, action, reward in reversed(episode):
                 G = self.gamma * G + reward
                 sa_pair = (state, action)
 
-                if sa_pair not in visited:
+                if self.visit_mode == 'every_visit' or sa_pair not in visited:
                     visited.add(sa_pair)
-                    # Incremental update : Q(s,a) += α * [G - Q(s,a)]
                     self.q_table[state, action] += self.alpha * (G - self.q_table[state, action])
 
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)

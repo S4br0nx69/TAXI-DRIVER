@@ -27,22 +27,45 @@ class Sarsa:
 
         self.q_table = np.zeros([self.env.observation_space.n, self.env.action_space.n])
 
-        # Hyperparamètres par défaut
+        # Hyperparamètres communs
         self.alpha = 0.2
         self.gamma = 0.9
         self.epsilon = 1.0
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.999
 
+        # Hyperparamètres individuels SARSA
+        self.policy_type = 'epsilon_greedy'  # 'epsilon_greedy', 'softmax', 'expected'
+        self.temperature = 1.0               # pour softmax (Boltzmann)
+        self.n_steps = 1                     # 1 = SARSA standard, n > 1 = n-step SARSA
+
     def _choose_action(self, state):
-        """Sélection epsilon-greedy."""
+        """Sélection selon la politique choisie."""
+        if self.policy_type == 'softmax':
+            q_values = self.q_table[state]
+            scaled = q_values / max(self.temperature, 1e-8)
+            exp_q = np.exp(scaled - np.max(scaled))
+            probs = exp_q / exp_q.sum()
+            return np.random.choice(self.env.action_space.n, p=probs)
+        # epsilon_greedy et expected utilisent la même sélection
         if random.random() < self.epsilon:
             return self.env.action_space.sample()
         return np.argmax(self.q_table[state])
 
+    def _expected_value(self, state):
+        """Valeur espérée sous politique epsilon-greedy (pour Expected SARSA)."""
+        q_values = self.q_table[state]
+        n_actions = self.env.action_space.n
+        best_action = np.argmax(q_values)
+        probs = np.ones(n_actions) * self.epsilon / n_actions
+        probs[best_action] += 1 - self.epsilon
+        return np.dot(probs, q_values)
+
     def train(self, train_episodes=25000, training_graph=False):
-        """Entraîne l'agent via SARSA avec epsilon-greedy décroissant.
-        Retourne un np.array des rewards par épisode."""
+        """Entraîne l'agent via SARSA. Supporte standard, Expected et n-step."""
+        if self.n_steps > 1:
+            return self._train_nstep(train_episodes, training_graph)
+
         reward_per_episode = np.zeros(train_episodes)
         steps_per_episode = np.zeros(train_episodes)
         penalties_per_episode = np.zeros(train_episodes)
@@ -59,12 +82,14 @@ class Sarsa:
                 next_state, reward, done, truncated, _ = self.env.step(action)
                 done = done or truncated
 
-                # SARSA : on choisit next_action AVANT la mise à jour
                 next_action = self._choose_action(next_state)
 
-                # Mise à jour SARSA : Q(s,a) += α * [r + γ * Q(s',a') - Q(s,a)]
                 old_value = self.q_table[state, action]
-                next_value = self.q_table[next_state, next_action]
+                if self.policy_type == 'expected':
+                    next_value = self._expected_value(next_state)
+                else:
+                    next_value = self.q_table[next_state, next_action]
+
                 self.q_table[state, action] = old_value + \
                     self.alpha * (reward + self.gamma * next_value - old_value)
 
@@ -74,7 +99,7 @@ class Sarsa:
                 total_reward += reward
                 steps += 1
                 state = next_state
-                action = next_action  # On-policy : on utilise l'action choisie
+                action = next_action
 
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
@@ -90,6 +115,81 @@ class Sarsa:
                       f"Steps: {steps}")
 
         print(f"\nTraining terminé — {train_episodes} épisodes")
+        print(f"  Mean reward : {reward_per_episode.mean():.2f}")
+        print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
+        print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
+
+        if training_graph:
+            self._plot_training(reward_per_episode, steps_per_episode)
+
+        return reward_per_episode
+
+    def _train_nstep(self, train_episodes, training_graph):
+        """Entraînement n-step SARSA (algorithme tabulaire, Sutton & Barto ch.7)."""
+        n = self.n_steps
+        reward_per_episode = np.zeros(train_episodes)
+        steps_per_episode = np.zeros(train_episodes)
+        penalties_per_episode = np.zeros(train_episodes)
+
+        for ep in range(train_episodes):
+            state, _ = self.env.reset()
+            action = self._choose_action(state)
+
+            states = [state]
+            actions = [action]
+            rewards = [0.0]  # rewards[0] dummy, rewards[t] = récompense au pas t
+
+            T = float('inf')
+            t = 0
+            total_reward = 0
+            penalties = 0
+
+            while True:
+                if t < T:
+                    next_state, reward, done, truncated, _ = self.env.step(actions[t])
+                    done = done or truncated
+
+                    states.append(next_state)
+                    rewards.append(reward)
+
+                    if reward == -10:
+                        penalties += 1
+                    total_reward += reward
+
+                    if done:
+                        T = t + 1
+                    else:
+                        next_action = self._choose_action(next_state)
+                        actions.append(next_action)
+
+                tau = t - n + 1
+                if tau >= 0:
+                    G = sum(self.gamma ** (i - tau - 1) * rewards[i]
+                            for i in range(tau + 1, min(tau + n, T) + 1))
+                    if tau + n < T:
+                        G += self.gamma ** n * self.q_table[states[tau + n], actions[tau + n]]
+
+                    s_tau, a_tau = states[tau], actions[tau]
+                    self.q_table[s_tau, a_tau] += self.alpha * (G - self.q_table[s_tau, a_tau])
+
+                t += 1
+                if tau == T - 1:
+                    break
+
+            self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+
+            reward_per_episode[ep] = total_reward
+            steps_per_episode[ep] = T
+            penalties_per_episode[ep] = penalties
+
+            if ep % 1000 == 0:
+                avg_reward = reward_per_episode[max(0, ep - 1000):ep + 1].mean() if ep > 0 else total_reward
+                print(f"Episode {ep:>6}/{train_episodes} | "
+                      f"ε={self.epsilon:.4f} | "
+                      f"Avg reward (last 1k): {avg_reward:.2f} | "
+                      f"Steps: {int(T)}")
+
+        print(f"\nTraining terminé — {train_episodes} épisodes ({n}-step SARSA)")
         print(f"  Mean reward : {reward_per_episode.mean():.2f}")
         print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
         print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")

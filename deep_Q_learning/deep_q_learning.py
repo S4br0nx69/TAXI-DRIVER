@@ -75,20 +75,31 @@ class DQNAgent:
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
-        # Hyperparamètres
-        self.lr = 0.001
+        # Hyperparamètres communs
         self.gamma = 0.99
         self.epsilon = 1.0
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.9995
+
+        # Hyperparamètres individuels DQN
+        self.lr = 0.001
         self.batch_size = 64
-        self.target_update = 10  # Mise à jour du target network tous les N épisodes
+        self.target_update = 10
         self.buffer_size = 50000
+        self.optimizer_type = 'adam'  # 'adam', 'rmsprop', 'sgd'
 
         # Composants
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=self.lr)
+        self.optimizer = self._build_optimizer()
         self.loss_fn = nn.HuberLoss()
         self.memory = ReplayBuffer(capacity=self.buffer_size)
+
+    def _build_optimizer(self):
+        """Construit l'optimiseur selon optimizer_type."""
+        if self.optimizer_type == 'rmsprop':
+            return optim.RMSprop(self.policy_net.parameters(), lr=self.lr)
+        elif self.optimizer_type == 'sgd':
+            return optim.SGD(self.policy_net.parameters(), lr=self.lr)
+        return optim.Adam(self.policy_net.parameters(), lr=self.lr)
 
     def _encode_state(self, state):
         """Encode un état entier en one-hot vector."""

@@ -37,6 +37,19 @@ services:
     stdin_open: true
     tty: true
 
+  benchmark:
+    build: .
+    command: ["benchmark.py"]
+    volumes:
+      - ./Q_learning:/app/Q_learning
+      - ./Sarsa:/app/Sarsa
+      - ./MonteCarlo:/app/MonteCarlo
+      - ./deep_Q_learning:/app/deep_Q_learning
+      - ./benchmark.py:/app/benchmark.py
+      - ./results:/app/results
+    stdin_open: true
+    tty: true
+
   portainer:
     image: portainer/portainer-ce:latest
     ports:

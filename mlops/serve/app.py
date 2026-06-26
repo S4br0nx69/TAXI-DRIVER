@@ -1,59 +1,68 @@
-"""API d'inférence FastAPI — sert la policy greedy du modèle champion.
+"""API d'inférence FastAPI — sert la policy greedy des modèles champions.
 
 100% local : aucune dépendance réseau sortante, aucun appel à un service tiers.
 Le serving ne charge que `policy.npy` (action greedy par état) + numpy : ni
 torch ni l'architecture du réseau ne sont nécessaires, quel que soit l'algo.
 
-Sélection du modèle servi (au démarrage) :
-- `TAXI_SERVE_ALGORITHM=sarsa` : sert le champion d'un algo précis.
-- non défini ou `auto` : sert le meilleur champion tous algos confondus.
+Tous les champions disponibles (un par algorithme) sont chargés en mémoire au
+démarrage : la console peut donc commuter d'un algorithme à l'autre à la volée.
+
+Modèle servi par défaut (quand l'appelant ne précise pas d'algorithme) :
+- `TAXI_SERVE_ALGORITHM=sarsa` : champion d'un algo précis.
+- non défini ou `auto` : meilleur champion tous algos confondus.
 
 Lancement :
     uvicorn mlops.serve.app:app --host 0.0.0.0 --port 8000
 
 Endpoints :
-    GET  /health        état du service + modèle chargé
-    GET  /model/info    métadonnées du modèle servi
-    POST /predict       {"state": int} -> action greedy
-    POST /reload        recharge le champion courant (après retraining)
+    GET  /health        état du service + modèle par défaut
+    GET  /algorithms    liste des champions disponibles (un par algo)
+    GET  /model/info    métadonnées d'un modèle (?algorithm=, défaut = courant)
+    POST /predict       {"state": int, "algorithm"?: str} -> action greedy
+    POST /reload        recharge tous les champions (après retraining)
 """
 
 import os
 from contextlib import asynccontextmanager
+from typing import Optional
 
 import numpy as np
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from mlops import ACTION_NAMES
+from mlops import ACTION_NAMES, ALGORITHMS
 from mlops import registry
+
+# Mini interface web (statique, 100% local) servie à la racine.
+_STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 
 
 @asynccontextmanager
 async def lifespan(_app):
-    """Charge le champion au démarrage du service."""
-    _load_champion()
+    """Charge tous les champions disponibles au démarrage du service."""
+    _load_all()
     yield
 
 
 app = FastAPI(
     title="Taxi Driver — Inference API",
-    description="Sert la policy greedy du modèle RL champion (Taxi-v3/v4).",
-    version="1.0.0",
+    description="Sert la policy greedy des modèles RL champions (Taxi-v3/v4).",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
-# État du modèle chargé (rempli au démarrage et par /reload).
-_STATE = {
-    "algorithm": None,
-    "policy": None,
-    "metadata": None,
-    "n_states": 0,
-}
+# Champions chargés en mémoire : algorithme -> {policy, metadata, n_states}.
+_MODELS = {}
+# Algorithme servi par défaut (résolu depuis TAXI_SERVE_ALGORITHM au chargement).
+_DEFAULT = None
 
 
 class PredictRequest(BaseModel):
     state: int = Field(..., ge=0, description="État discret Taxi (0..n_states-1)")
+    algorithm: Optional[str] = Field(
+        None, description="Algorithme à utiliser ; défaut = modèle courant."
+    )
 
 
 class PredictResponse(BaseModel):
@@ -64,54 +73,54 @@ class PredictResponse(BaseModel):
     model_version: int
 
 
-def _load_champion():
-    """(Re)charge le champion en mémoire selon TAXI_SERVE_ALGORITHM."""
-    target = os.environ.get("TAXI_SERVE_ALGORITHM", "auto").strip().lower()
+def _load_all():
+    """(Re)charge en mémoire un modèle par algorithme connu.
 
-    if target in ("", "auto"):
-        algorithm, meta = registry.best_algorithm()
-        if algorithm is None:
-            _reset_state()
-            return False
-        version_dir, _ = registry.get_champion(algorithm)
-    else:
-        algorithm = target
+    On sert le champion validé s'il existe ; sinon, la dernière version
+    enregistrée (marquée `validated=False`) pour permettre de tester en console
+    un algorithme qui n'a pas (encore) passé les garde-fous de promotion.
+    """
+    _MODELS.clear()
+    for algorithm in ALGORITHMS:
         version_dir, meta = registry.get_champion(algorithm)
+        validated = meta is not None
         if meta is None:
-            _reset_state()
-            return False
+            version_dir, meta = registry.get_latest(algorithm)
+        if meta is None:
+            continue
+        _MODELS[algorithm] = {
+            "policy": registry.load_policy(version_dir),
+            "metadata": meta,
+            "n_states": int(meta["n_states"]),
+            "validated": validated,
+        }
 
-    _STATE["algorithm"] = algorithm
-    _STATE["metadata"] = meta
-    _STATE["policy"] = registry.load_policy(version_dir)
-    _STATE["n_states"] = int(meta["n_states"])
-    return True
-
-
-def _reset_state():
-    _STATE.update({"algorithm": None, "policy": None, "metadata": None, "n_states": 0})
-
-
-@app.get("/health")
-def health():
-    """Liveness/readiness : le service répond, modèle chargé ou non."""
-    loaded = _STATE["policy"] is not None
-    return {
-        "status": "ok",
-        "model_loaded": loaded,
-        "algorithm": _STATE["algorithm"],
-    }
+    # Résolution du modèle par défaut (algo précis, ou 'auto' = meilleur champion).
+    global _DEFAULT
+    target = os.environ.get("TAXI_SERVE_ALGORITHM", "auto").strip().lower()
+    if target in ("", "auto"):
+        best, _ = registry.best_algorithm()
+        _DEFAULT = best if best in _MODELS else (next(iter(_MODELS), None))
+    else:
+        _DEFAULT = target if target in _MODELS else None
+    return bool(_MODELS)
 
 
-@app.get("/model/info")
-def model_info():
-    """Métadonnées du modèle servi (version, métriques, params, run MLflow)."""
-    if _STATE["metadata"] is None:
-        raise HTTPException(status_code=503, detail="Aucun modèle champion disponible.")
-    meta = _STATE["metadata"]
+def _resolve(algorithm):
+    """Nom de l'algo effectif pour une requête (None si indisponible)."""
+    if algorithm and algorithm.strip().lower() not in ("", "auto"):
+        algorithm = algorithm.strip().lower()
+        return algorithm if algorithm in _MODELS else None
+    return _DEFAULT if _DEFAULT in _MODELS else None
+
+
+def _info(model):
+    """Vue publique des métadonnées d'un modèle chargé."""
+    meta = model["metadata"]
     return {
         "algorithm": meta["algorithm"],
         "version": meta["version"],
+        "validated": model["validated"],
         "run_id": meta["run_id"],
         "created_at": meta["created_at"],
         "n_states": meta["n_states"],
@@ -121,36 +130,90 @@ def model_info():
     }
 
 
+@app.get("/", include_in_schema=False)
+def ui():
+    """Sert la mini interface web (visualisation + prédictions)."""
+    return FileResponse(os.path.join(_STATIC_DIR, "index.html"))
+
+
+@app.get("/health")
+def health():
+    """Liveness/readiness : le service répond, modèle par défaut chargé ou non."""
+    return {
+        "status": "ok",
+        "model_loaded": bool(_MODELS),
+        "algorithm": _DEFAULT,
+        "available": sorted(_MODELS.keys()),
+    }
+
+
+@app.get("/algorithms")
+def algorithms():
+    """Liste les champions disponibles (un par algorithme) + le défaut."""
+    best, _ = registry.best_algorithm()
+    items = []
+    for algo, m in _MODELS.items():
+        meta = m["metadata"]
+        items.append({
+            "algorithm": algo,
+            "version": meta["version"],
+            "validated": m["validated"],
+            "metrics": meta["metrics"],
+            "n_actions": meta["n_actions"],
+            "is_best": algo == best,
+        })
+    items.sort(key=lambda x: x["metrics"].get("mean_reward", float("-inf")), reverse=True)
+    return {"algorithms": items, "default": _DEFAULT, "best": best}
+
+
+@app.get("/model/info")
+def model_info(algorithm: Optional[str] = None):
+    """Métadonnées d'un modèle (?algorithm= ; défaut = modèle courant)."""
+    algo = _resolve(algorithm)
+    if algo is None:
+        raise HTTPException(status_code=503, detail="Aucun modèle champion disponible.")
+    return _info(_MODELS[algo])
+
+
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
     """Retourne l'action greedy recommandée pour un état donné."""
-    if _STATE["policy"] is None:
+    algo = _resolve(req.algorithm)
+    if algo is None:
+        if req.algorithm:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Algorithme '{req.algorithm}' indisponible. "
+                       f"Disponibles : {sorted(_MODELS.keys())}",
+            )
         raise HTTPException(status_code=503, detail="Aucun modèle champion disponible.")
-    if req.state >= _STATE["n_states"]:
+
+    model = _MODELS[algo]
+    if req.state >= model["n_states"]:
         raise HTTPException(
             status_code=422,
-            detail=f"state hors bornes : 0..{_STATE['n_states'] - 1}",
+            detail=f"state hors bornes : 0..{model['n_states'] - 1}",
         )
 
-    action = int(_STATE["policy"][req.state])
+    action = int(model["policy"][req.state])
     action_name = ACTION_NAMES[action] if action < len(ACTION_NAMES) else str(action)
     return PredictResponse(
         state=req.state,
         action=action,
         action_name=action_name,
-        algorithm=_STATE["algorithm"],
-        model_version=_STATE["metadata"]["version"],
+        algorithm=algo,
+        model_version=model["metadata"]["version"],
     )
 
 
 @app.post("/reload")
 def reload_model():
-    """Recharge le champion courant (hot reload après un retraining)."""
-    ok = _load_champion()
+    """Recharge tous les champions (hot reload après un retraining)."""
+    ok = _load_all()
     if not ok:
         raise HTTPException(status_code=503, detail="Aucun modèle champion à charger.")
     return {
         "status": "reloaded",
-        "algorithm": _STATE["algorithm"],
-        "version": _STATE["metadata"]["version"],
+        "default": _DEFAULT,
+        "available": sorted(_MODELS.keys()),
     }

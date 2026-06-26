@@ -215,6 +215,24 @@ def get_champion(algorithm, models_dir=MODELS_DIR):
         return version_dir, json.load(f)
 
 
+def get_latest(algorithm, models_dir=MODELS_DIR):
+    """Retourne (version_dir, metadata) de la dernière version enregistrée.
+
+    Sert au mode "test" de la console : permet d'inspecter un algorithme qui
+    n'a pas (encore) de champion validé. Retourne (None, None) si aucune version.
+    """
+    index = _load_index(algorithm, models_dir)
+    if not index["versions"]:
+        return None, None
+    latest = max(index["versions"], key=lambda v: v["version"])
+    version_dir = os.path.join(_algo_dir(algorithm, models_dir), f"v{latest['version']}")
+    meta_path = os.path.join(version_dir, "metadata.json")
+    if not os.path.exists(meta_path):
+        return None, None
+    with open(meta_path, "r", encoding="utf-8") as f:
+        return version_dir, json.load(f)
+
+
 def load_policy(version_dir):
     """Charge la policy greedy (np.ndarray) d'une version donnée."""
     return np.load(os.path.join(version_dir, "policy.npy"))

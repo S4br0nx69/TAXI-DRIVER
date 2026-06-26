@@ -175,6 +175,26 @@ def model_info(algorithm: Optional[str] = None):
     return _info(_MODELS[algo])
 
 
+@app.get("/policy")
+def policy(algorithm: Optional[str] = None):
+    """Policy greedy complète d'un modèle (action par état, [n_states]).
+
+    Permet au client de faire des rollouts/benchmarks 100% locaux, sans un
+    appel HTTP par pas de temps.
+    """
+    algo = _resolve(algorithm)
+    if algo is None:
+        raise HTTPException(status_code=503, detail="Aucun modèle champion disponible.")
+    model = _MODELS[algo]
+    return {
+        "algorithm": algo,
+        "version": model["metadata"]["version"],
+        "validated": model["validated"],
+        "n_states": model["n_states"],
+        "policy": model["policy"].astype(int).tolist(),
+    }
+
+
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
     """Retourne l'action greedy recommandée pour un état donné."""

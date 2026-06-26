@@ -10,9 +10,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -47.66,
+            "steps": 62.99,
+            "penalties": 0.0,
+            "completion_rate": 73.0
           }
         },
         {
@@ -22,9 +23,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -54.06,
+            "steps": 68.76,
+            "penalties": 0.0,
+            "completion_rate": 70.0
           }
         },
         {
@@ -34,9 +36,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -8.4,
+            "steps": 27.72,
+            "penalties": 0.0,
+            "completion_rate": 92.0
           }
         },
         {
@@ -46,9 +49,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 2.01,
+            "steps": 18.36,
+            "penalties": 0.0,
+            "completion_rate": 97.0
           }
         },
         {
@@ -58,9 +62,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -2.17,
+            "steps": 22.12,
+            "penalties": 0.0,
+            "completion_rate": 95.0
           }
         },
         {
@@ -70,9 +75,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.04,
+            "steps": 12.96,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -82,9 +88,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.51,
+            "steps": 12.49,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -94,9 +101,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.92,
+            "steps": 13.08,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -106,9 +114,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.68,
+            "steps": 13.32,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -118,9 +127,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -16.69,
+            "steps": 35.17,
+            "penalties": 0.0,
+            "completion_rate": 88.0
           }
         },
         {
@@ -130,9 +140,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -6.4,
+            "steps": 25.93,
+            "penalties": 0.0,
+            "completion_rate": 93.0
           }
         },
         {
@@ -142,9 +153,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.69,
+            "steps": 13.31,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -154,9 +166,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 5.59,
+            "steps": 15.2,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -166,9 +179,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.0,
+            "steps": 13.0,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -178,9 +192,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.65,
+            "steps": 13.35,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -190,9 +205,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -178.8,
-            "steps": 180.9,
-            "penalties": 0.0
+            "reward": 7.65,
+            "steps": 13.35,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -202,9 +218,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -178.6,
-            "steps": 180.7,
-            "penalties": 0.0
+            "reward": 7.87,
+            "steps": 13.13,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -214,9 +231,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -157.4,
-            "steps": 161.6,
-            "penalties": 0.0
+            "reward": 8.09,
+            "steps": 12.91,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -226,9 +244,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -178.8,
-            "steps": 180.9,
-            "penalties": 0.0
+            "reward": 1.29,
+            "steps": 19.08,
+            "penalties": 0.0,
+            "completion_rate": 97.0
           }
         },
         {
@@ -238,9 +257,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -158.2,
-            "steps": 162.4,
-            "penalties": 0.0
+            "reward": 7.76,
+            "steps": 13.24,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -250,9 +270,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -158.1,
-            "steps": 162.3,
-            "penalties": 0.0
+            "reward": 8.28,
+            "steps": 12.72,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -262,9 +283,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -136.4,
-            "steps": 142.7,
-            "penalties": 0.0
+            "reward": 7.68,
+            "steps": 13.32,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -274,9 +296,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -137.0,
-            "steps": 143.3,
-            "penalties": 0.0
+            "reward": 7.81,
+            "steps": 13.19,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -286,9 +309,10 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -178.9,
-            "steps": 181.0,
-            "penalties": 0.0
+            "reward": 7.45,
+            "steps": 13.55,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -298,9 +322,10 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -115.6,
-            "steps": 124.0,
-            "penalties": 0.0
+            "reward": 7.92,
+            "steps": 13.08,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -310,9 +335,10 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -158.3,
-            "steps": 162.5,
-            "penalties": 0.0
+            "reward": 7.39,
+            "steps": 13.61,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -322,21 +348,23 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -157.8,
-            "steps": 162.0,
-            "penalties": 0.0
+            "reward": 8.15,
+            "steps": 12.85,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         }
       ],
       "best_params": {
-        "alpha": 0.2,
+        "alpha": 0.05,
         "gamma": 0.99,
         "epsilon_decay": 0.999
       },
       "best_metrics": {
-        "reward": -115.6,
-        "steps": 124.0,
-        "penalties": 0.0
+        "reward": 8.51,
+        "steps": 12.49,
+        "penalties": 0.0,
+        "completion_rate": 100.0
       }
     },
     "sarsa": {
@@ -350,9 +378,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -11.26,
+            "steps": 30.37,
+            "penalties": 0.0,
+            "completion_rate": 91.0
           }
         },
         {
@@ -364,9 +393,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -6.43,
+            "steps": 25.96,
+            "penalties": 0.0,
+            "completion_rate": 93.0
           }
         },
         {
@@ -378,9 +408,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.38,
+            "steps": 12.62,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -392,9 +423,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.61,
+            "steps": 13.39,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -406,9 +438,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 3.44,
+            "steps": 17.14,
+            "penalties": 0.0,
+            "completion_rate": 98.0
           }
         },
         {
@@ -420,9 +453,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 5.63,
+            "steps": 15.16,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -434,9 +468,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.25,
+            "steps": 12.75,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -448,9 +483,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 3.7,
+            "steps": 16.88,
+            "penalties": 0.0,
+            "completion_rate": 98.0
           }
         },
         {
@@ -462,9 +498,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.88,
+            "steps": 13.12,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -476,9 +513,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.69,
+            "steps": 13.31,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -490,9 +528,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.09,
+            "steps": 12.91,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -504,9 +543,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -178.5,
-            "steps": 180.6,
-            "penalties": 0.0
+            "reward": 7.29,
+            "steps": 13.71,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -518,9 +558,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.98,
+            "steps": 13.02,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -532,9 +573,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.12,
+            "steps": 12.88,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -546,9 +588,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.06,
+            "steps": 12.94,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -560,9 +603,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -379.1,
-            "steps": 200.0,
-            "penalties": 19.9
+            "reward": 8.1,
+            "steps": 12.9,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -574,9 +618,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.46,
+            "steps": 13.54,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -588,9 +633,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 6.96,
+            "steps": 14.04,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -602,9 +648,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.24,
+            "steps": 12.76,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -616,9 +663,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -178.6,
-            "steps": 180.7,
-            "penalties": 0.0
+            "reward": 7.0,
+            "steps": 14.0,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -630,9 +678,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 5.6,
+            "steps": 15.19,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -644,9 +693,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -178.8,
-            "steps": 180.9,
-            "penalties": 0.0
+            "reward": 7.78,
+            "steps": 13.22,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -658,9 +708,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 5.7,
+            "steps": 15.09,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -672,9 +723,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.18,
+            "steps": 13.82,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -686,9 +738,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.43,
+            "steps": 13.57,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -700,9 +753,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -137.8,
-            "steps": 144.1,
-            "penalties": 0.0
+            "reward": 7.89,
+            "steps": 13.11,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -714,9 +768,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 8.3,
+            "steps": 12.7,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -728,9 +783,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -115.5,
-            "steps": 123.9,
-            "penalties": 0.0
+            "reward": 7.69,
+            "steps": 13.31,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -742,9 +798,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.66,
+            "steps": 13.34,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -756,9 +813,10 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -358.9,
-            "steps": 181.0,
-            "penalties": 20.0
+            "reward": 7.31,
+            "steps": 13.69,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -770,9 +828,10 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.43,
+            "steps": 13.57,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -784,24 +843,26 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": -718.1,
-            "steps": 181.1,
-            "penalties": 59.9
+            "reward": 7.41,
+            "steps": 13.59,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         }
       ],
       "best_params": {
-        "alpha": 0.2,
-        "gamma": 0.99,
+        "alpha": 0.1,
+        "gamma": 0.9,
         "epsilon_decay": 0.999,
         "policy_type": "expected",
-        "n_steps": 3,
+        "n_steps": 1,
         "temperature": 1.0
       },
       "best_metrics": {
-        "reward": -115.5,
-        "steps": 123.9,
-        "penalties": 0.0
+        "reward": 8.38,
+        "steps": 12.62,
+        "penalties": 0.0,
+        "completion_rate": 100.0
       }
     },
     "monte_carlo": {
@@ -814,9 +875,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -143.3,
+            "steps": 148.97,
+            "penalties": 0.0,
+            "completion_rate": 27.0
           }
         },
         {
@@ -827,9 +889,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -178.5,
-            "steps": 180.6,
-            "penalties": 0.0
+            "reward": 1.38,
+            "steps": 18.99,
+            "penalties": 0.0,
+            "completion_rate": 97.0
           }
         },
         {
@@ -840,9 +903,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -104.14,
+            "steps": 113.8,
+            "penalties": 0.0,
+            "completion_rate": 46.0
           }
         },
         {
@@ -853,9 +917,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -17.36,
+            "steps": 35.84,
+            "penalties": 0.0,
+            "completion_rate": 88.0
           }
         },
         {
@@ -866,9 +931,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -379.1,
-            "steps": 200.0,
-            "penalties": 19.9
+            "reward": -20.84,
+            "steps": 38.9,
+            "penalties": 0.0,
+            "completion_rate": 86.0
           }
         },
         {
@@ -879,9 +945,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -0.61,
+            "steps": 20.77,
+            "penalties": 0.0,
+            "completion_rate": 96.0
           }
         },
         {
@@ -892,9 +959,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -380.0,
-            "steps": 200.0,
-            "penalties": 20.0
+            "reward": -168.47,
+            "steps": 171.62,
+            "penalties": 0.0,
+            "completion_rate": 15.0
           }
         },
         {
@@ -905,9 +973,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -6.89,
+            "steps": 26.42,
+            "penalties": 0.0,
+            "completion_rate": 93.0
           }
         },
         {
@@ -918,9 +987,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -557.3,
-            "steps": 200.0,
-            "penalties": 39.7
+            "reward": -87.51,
+            "steps": 98.85,
+            "penalties": 0.0,
+            "completion_rate": 54.0
           }
         },
         {
@@ -931,9 +1001,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -2.77,
+            "steps": 22.72,
+            "penalties": 0.0,
+            "completion_rate": 95.0
           }
         },
         {
@@ -944,9 +1015,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -558.2,
-            "steps": 200.0,
-            "penalties": 39.8
+            "reward": -0.44,
+            "steps": 20.6,
+            "penalties": 0.0,
+            "completion_rate": 96.0
           }
         },
         {
@@ -957,9 +1029,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 1.64,
+            "steps": 18.73,
+            "penalties": 0.0,
+            "completion_rate": 97.0
           }
         },
         {
@@ -970,9 +1043,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -739.1,
-            "steps": 200.0,
-            "penalties": 59.9
+            "reward": -514.16,
+            "steps": 126.35,
+            "penalties": 44.0,
+            "completion_rate": 39.0
           }
         },
         {
@@ -983,9 +1057,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -560.0,
-            "steps": 200.0,
-            "penalties": 40.0
+            "reward": 4.74,
+            "steps": 16.05,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -996,9 +1071,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -1098.2,
-            "steps": 200.0,
-            "penalties": 99.8
+            "reward": -157.46,
+            "steps": 64.79,
+            "penalties": 12.0,
+            "completion_rate": 73.0
           }
         },
         {
@@ -1009,9 +1085,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -918.2,
-            "steps": 200.0,
-            "penalties": 79.8
+            "reward": 0.56,
+            "steps": 19.81,
+            "penalties": 0.0,
+            "completion_rate": 97.0
           }
         },
         {
@@ -1022,9 +1099,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -737.3,
-            "steps": 200.0,
-            "penalties": 59.7
+            "reward": -29.48,
+            "steps": 30.59,
+            "penalties": 2.0,
+            "completion_rate": 91.0
           }
         },
         {
@@ -1035,9 +1113,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -1098.2,
-            "steps": 200.0,
-            "penalties": 99.8
+            "reward": -12.95,
+            "steps": 31.85,
+            "penalties": 0.0,
+            "completion_rate": 90.0
           }
         },
         {
@@ -1048,9 +1127,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -93.5,
+            "steps": 104.21,
+            "penalties": 0.0,
+            "completion_rate": 51.0
           }
         },
         {
@@ -1061,9 +1141,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 3.71,
+            "steps": 17.08,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -1074,9 +1155,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -560.0,
-            "steps": 200.0,
-            "penalties": 40.0
+            "reward": -35.58,
+            "steps": 52.17,
+            "penalties": 0.0,
+            "completion_rate": 79.0
           }
         },
         {
@@ -1087,9 +1169,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 5.13,
+            "steps": 15.66,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -1100,9 +1183,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -114.36,
+            "steps": 122.97,
+            "penalties": 0.0,
+            "completion_rate": 41.0
           }
         },
         {
@@ -1113,9 +1197,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -31.8,
+            "steps": 48.81,
+            "penalties": 0.0,
+            "completion_rate": 81.0
           }
         },
         {
@@ -1126,9 +1211,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -739.1,
-            "steps": 200.0,
-            "penalties": 59.9
+            "reward": -34.22,
+            "steps": 51.02,
+            "penalties": 0.0,
+            "completion_rate": 80.0
           }
         },
         {
@@ -1139,9 +1225,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 7.4,
+            "steps": 13.6,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1152,9 +1239,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -918.2,
-            "steps": 200.0,
-            "penalties": 79.8
+            "reward": -17.59,
+            "steps": 36.07,
+            "penalties": 0.0,
+            "completion_rate": 88.0
           }
         },
         {
@@ -1165,9 +1253,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": 0.83,
+            "steps": 19.54,
+            "penalties": 0.0,
+            "completion_rate": 97.0
           }
         },
         {
@@ -1178,9 +1267,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -380.0,
-            "steps": 200.0,
-            "penalties": 20.0
+            "reward": -77.06,
+            "steps": 89.45,
+            "penalties": 0.0,
+            "completion_rate": 59.0
           }
         },
         {
@@ -1191,9 +1281,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -200.0,
-            "steps": 200.0,
-            "penalties": 0.0
+            "reward": -29.34,
+            "steps": 46.56,
+            "penalties": 0.0,
+            "completion_rate": 82.0
           }
         },
         {
@@ -1204,9 +1295,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -1276.4,
-            "steps": 200.0,
-            "penalties": 119.6
+            "reward": -305.47,
+            "steps": 149.14,
+            "penalties": 18.0,
+            "completion_rate": 27.0
           }
         },
         {
@@ -1217,9 +1309,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -1093.7,
-            "steps": 200.0,
-            "penalties": 99.3
+            "reward": 7.64,
+            "steps": 13.36,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1230,9 +1323,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -916.4,
-            "steps": 200.0,
-            "penalties": 79.6
+            "reward": -319.9,
+            "steps": 97.54,
+            "penalties": 25.99,
+            "completion_rate": 55.00000000000001
           }
         },
         {
@@ -1243,9 +1337,10 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -380.0,
-            "steps": 200.0,
-            "penalties": 20.0
+            "reward": -44.69,
+            "steps": 60.44,
+            "penalties": 0.0,
+            "completion_rate": 75.0
           }
         },
         {
@@ -1256,9 +1351,10 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -919.1,
-            "steps": 200.0,
-            "penalties": 79.9
+            "reward": -279.98,
+            "steps": 126.89,
+            "penalties": 17.92,
+            "completion_rate": 39.0
           }
         },
         {
@@ -1269,22 +1365,24 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -739.1,
-            "steps": 200.0,
-            "penalties": 59.9
+            "reward": -142.2,
+            "steps": 99.54,
+            "penalties": 6.0,
+            "completion_rate": 54.0
           }
         }
       ],
       "best_params": {
-        "alpha": 0.05,
-        "gamma": 0.9,
+        "alpha": 0.1,
+        "gamma": 0.99,
         "epsilon_decay": 0.9995,
         "visit_mode": "every_visit"
       },
       "best_metrics": {
-        "reward": -178.5,
-        "steps": 180.6,
-        "penalties": 0.0
+        "reward": 7.64,
+        "steps": 13.36,
+        "penalties": 0.0,
+        "completion_rate": 100.0
       }
     },
     "dqn": {
@@ -1297,9 +1395,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 8.5,
-            "steps": 12.5,
-            "penalties": 0.0
+            "reward": 7.84,
+            "steps": 13.16,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1310,9 +1409,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 8.0,
-            "steps": 13.0,
-            "penalties": 0.0
+            "reward": 8.14,
+            "steps": 12.86,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1323,9 +1423,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 6.8,
-            "steps": 14.2,
-            "penalties": 0.0
+            "reward": 6.14,
+            "steps": 14.65,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -1336,9 +1437,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 9.0,
-            "steps": 12.0,
-            "penalties": 0.0
+            "reward": 7.8,
+            "steps": 13.2,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1349,9 +1451,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": -14.8,
-            "steps": 33.7,
-            "penalties": 0.0
+            "reward": 8.6,
+            "steps": 12.4,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1362,9 +1465,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": -53.9,
-            "steps": 68.6,
-            "penalties": 0.0
+            "reward": 7.78,
+            "steps": 13.22,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1375,9 +1479,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 8.5,
-            "steps": 12.5,
-            "penalties": 0.0
+            "reward": 7.63,
+            "steps": 13.37,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1388,9 +1493,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 9.2,
-            "steps": 11.8,
-            "penalties": 0.0
+            "reward": 7.99,
+            "steps": 13.01,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1401,9 +1507,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 6.2,
-            "steps": 14.8,
-            "penalties": 0.0
+            "reward": 8.27,
+            "steps": 12.73,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1414,9 +1521,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": -13.2,
-            "steps": 32.1,
-            "penalties": 0.0
+            "reward": 7.92,
+            "steps": 13.08,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1427,9 +1535,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 6.7,
-            "steps": 14.3,
-            "penalties": 0.0
+            "reward": 8.12,
+            "steps": 12.88,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1440,9 +1549,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 8.2,
-            "steps": 12.8,
-            "penalties": 0.0
+            "reward": 5.76,
+            "steps": 15.03,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -1453,9 +1563,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 6.8,
-            "steps": 14.2,
-            "penalties": 0.0
+            "reward": 6.62,
+            "steps": 14.17,
+            "penalties": 0.0,
+            "completion_rate": 99.0
           }
         },
         {
@@ -1466,9 +1577,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": -12.5,
-            "steps": 31.4,
-            "penalties": 0.0
+            "reward": 7.86,
+            "steps": 13.14,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1479,9 +1591,10 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 9.1,
-            "steps": 11.9,
-            "penalties": 0.0
+            "reward": 8.02,
+            "steps": 12.98,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         },
         {
@@ -1492,9 +1605,10 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.7,
-            "steps": 13.3,
-            "penalties": 0.0
+            "reward": 7.92,
+            "steps": 13.08,
+            "penalties": 0.0,
+            "completion_rate": 100.0
           }
         }
       ],
@@ -1502,14 +1616,15 @@
         "gamma": 0.99,
         "epsilon_decay": 0.9995,
         "lr": 0.0005,
-        "batch_size": 64,
+        "batch_size": 32,
         "target_update": 10,
-        "optimizer_type": "rmsprop"
+        "optimizer_type": "adam"
       },
       "best_metrics": {
-        "reward": 9.2,
-        "steps": 11.8,
-        "penalties": 0.0
+        "reward": 8.6,
+        "steps": 12.4,
+        "penalties": 0.0,
+        "completion_rate": 100.0
       }
     }
   }

@@ -112,6 +112,7 @@ class MonteCarlo:
         total_rewards = []
         total_steps = []
         total_penalties = []
+        total_completions = []
 
         for i in range(test_episodes):
             state, _ = self.env.reset()
@@ -119,12 +120,15 @@ class MonteCarlo:
             episode_reward = 0
             steps = 0
             penalties = 0
+            completed = False
 
             while not done:
                 action = np.argmax(self.q_table[state])
-                state, reward, done, truncated, _ = self.env.step(action)
-                done = done or truncated
+                state, reward, terminated, truncated, _ = self.env.step(action)
+                done = terminated or truncated
 
+                if terminated:
+                    completed = True
                 if reward == -10:
                     penalties += 1
                 episode_reward += reward
@@ -140,6 +144,7 @@ class MonteCarlo:
             total_rewards.append(episode_reward)
             total_steps.append(steps)
             total_penalties.append(penalties)
+            total_completions.append(1 if completed else 0)
 
         if not fast_testing:
             plt.close()
@@ -147,13 +152,15 @@ class MonteCarlo:
         avg_steps = np.mean(total_steps)
         avg_penalties = np.mean(total_penalties)
         avg_reward = np.mean(total_rewards)
+        completion_rate = float(np.mean(total_completions)) * 100
 
         print(f"\nRésultats après {test_episodes} épisodes de test :")
         print(f"  Average steps    : {avg_steps:.2f}")
         print(f"  Average penalties: {avg_penalties:.2f}")
         print(f"  Average reward   : {avg_reward:.2f}")
+        print(f"  Completion rate  : {completion_rate:.1f}%")
 
-        return avg_steps, avg_penalties, avg_reward
+        return avg_steps, avg_penalties, avg_reward, completion_rate
 
     def _render_frame(self, state, action, reward, episode_reward, episode):
         """Affiche une frame selon le render_mode."""

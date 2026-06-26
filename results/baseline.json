@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-21T10:30:58.999978",
+  "timestamp": "2026-06-26T14:03:56.894877",
   "models": {
     "q_learning": {
       "params": {
@@ -8,9 +8,10 @@
         "epsilon_decay": 0.9995
       },
       "metrics": {
-        "reward": -168.34,
-        "steps": 171.49,
-        "penalties": 0.0
+        "reward": -18.91,
+        "steps": 37.18,
+        "penalties": 0.0,
+        "completion_rate": 87.0
       }
     },
     "sarsa": {
@@ -23,9 +24,10 @@
         "temperature": 1.0
       },
       "metrics": {
-        "reward": -117.13,
-        "steps": 125.53,
-        "penalties": 0.0
+        "reward": -8.76,
+        "steps": 28.08,
+        "penalties": 0.0,
+        "completion_rate": 92.0
       }
     },
     "monte_carlo": {
@@ -36,9 +38,10 @@
         "visit_mode": "first_visit"
       },
       "metrics": {
-        "reward": -379.28,
-        "steps": 200.0,
-        "penalties": 19.92
+        "reward": -110.33,
+        "steps": 119.36,
+        "penalties": 0.0,
+        "completion_rate": 43.0
       }
     },
     "dqn": {
@@ -51,9 +54,10 @@
         "optimizer_type": "adam"
       },
       "metrics": {
-        "reward": 8.18,
-        "steps": 12.82,
-        "penalties": 0.0
+        "reward": 7.54,
+        "steps": 13.46,
+        "penalties": 0.0,
+        "completion_rate": 100.0
       }
     }
   }

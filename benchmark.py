@@ -261,9 +261,14 @@ def run_model(model_name, params, train_episodes, test_episodes):
     """
     agent = _build_agent(model_name, params)
     agent.train(train_episodes=train_episodes, training_graph=False)
-    steps, penalties, reward = agent.test(test_episodes=test_episodes, fast_testing=True)
+    steps, penalties, reward, completion_rate = agent.test(test_episodes=test_episodes, fast_testing=True)
     # Conversion explicite en float : numpy scalars ne sont pas sérialisables en JSON.
-    return {'reward': float(reward), 'steps': float(steps), 'penalties': float(penalties)}
+    return {
+        'reward': float(reward),
+        'steps': float(steps),
+        'penalties': float(penalties),
+        'completion_rate': float(completion_rate),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -415,9 +420,13 @@ def phase_compare():
 
     # Seuls les modèles présents dans les deux fichiers sont comparables
     models       = [m for m in DEFAULT_PARAMS if m in baseline['models'] and m in final['models']]
-    metric_names = ['reward', 'steps', 'penalties']
+    metric_names = ['reward', 'steps', 'penalties', 'completion_rate']
+    metric_labels = {
+        'reward': 'Reward', 'steps': 'Steps',
+        'penalties': 'Penalties', 'completion_rate': 'Completion rate (%)',
+    }
 
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig, axes = plt.subplots(1, 4, figsize=(24, 6))
     fig.suptitle("Comparaison avant / après fine-tuning", fontsize=14, fontweight='bold')
 
     # Positions des groupes sur l'axe X : un groupe par modèle, deux barres par groupe
@@ -433,7 +442,7 @@ def phase_compare():
         bars_a = ax.bar(x + width / 2, after,  width, label='Après',
                         color=[MODEL_COLORS[m] for m in models], alpha=0.9)
 
-        ax.set_title(metric.capitalize(), fontsize=12)
+        ax.set_title(metric_labels[metric], fontsize=12)
         ax.set_xticks(x)
         ax.set_xticklabels([MODEL_LABELS[m] for m in models], rotation=15, ha='right')
         ax.legend()
@@ -472,9 +481,13 @@ def _plot_snapshot(snapshot, phase_name):
     Appelé automatiquement à la fin de chaque phase pour avoir une trace visuelle immédiate.
     """
     models       = list(snapshot['models'].keys())
-    metric_names = ['reward', 'steps', 'penalties']
+    metric_names = ['reward', 'steps', 'penalties', 'completion_rate']
+    metric_labels = {
+        'reward': 'Reward', 'steps': 'Steps',
+        'penalties': 'Penalties', 'completion_rate': 'Completion rate (%)',
+    }
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 4, figsize=(20, 5))
     fig.suptitle(f"Phase : {phase_name.capitalize()}", fontsize=13, fontweight='bold')
 
     x      = np.arange(len(models))
@@ -483,7 +496,7 @@ def _plot_snapshot(snapshot, phase_name):
     for ax, metric in zip(axes, metric_names):
         vals = [snapshot['models'][m]['metrics'].get(metric, 0) for m in models]
         bars = ax.bar(x, vals, color=colors, alpha=0.85)
-        ax.set_title(metric.capitalize())
+        ax.set_title(metric_labels[metric])
         ax.set_xticks(x)
         ax.set_xticklabels([MODEL_LABELS[m] for m in models], rotation=15, ha='right')
         ax.grid(True, alpha=0.3, axis='y')

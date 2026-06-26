@@ -25,7 +25,8 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       - name: Run unit tests
-        run: python -m pytest tests/ -v
+        # test_mlops.py est couvert par le job `mlops` (deps mlflow/yaml/fastapi).
+        run: python -m pytest tests/ -v --ignore=tests/test_mlops.py
 
       - name: Run bruteforce smoke test
         run: python bruteforce.py

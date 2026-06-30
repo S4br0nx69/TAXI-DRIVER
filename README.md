@@ -400,62 +400,92 @@ TAXI-DRIVER/
 L'objectif de cette branche est d'aller plus loin que les paramètres par défaut : identifier les meilleurs hyperparamètres pour chaque modèle, mesurer objectivement le gain apporté, et produire un comparatif visuel avant/après utilisable en présentation.
 
 Le travail se décompose en deux axes :
-1. **Extension des hyperparamètres** — chaque modèle expose de nouveaux réglages spécifiques à son algorithme
+1. **Extension des hyperparamètres** — chaque modèle expose de nouveaux réglages spécifiques à son algorithme, dont des variantes algorithmiques complètes (Double Q-Learning, SARSA(λ), Dueling DQN…)
 2. **Infrastructure de benchmark** — un script dédié capture les métriques à trois moments clés (baseline, grid search, final) et génère les traces (JSON, PNG, tableau terminal)
 
 ---
 
-### Hyperparamètres ajoutés par modèle
+### Hyperparamètres par modèle
+
+#### 🔵 Q-Learning — `Q_learning/q_learning.py`
+
+| Paramètre | Type | Défaut | Rôle |
+|---|---|---|---|
+| `alpha` | `float` | `0.1` | Learning rate — taux de mise à jour de la Q-table |
+| `gamma` | `float` | `0.6` | Discount factor — portée temporelle des récompenses futures |
+| `epsilon_decay` | `float` | `0.9995` | Décroissance d'epsilon par épisode |
+| `optimistic_init` | `float` | `0.0` | Valeur initiale de toutes les entrées de la Q-table. `0` = standard (pessimiste), `> 0` = optimiste : force l'agent à explorer toutes les paires (s, a) au moins une fois avant de s'y fier, sans dépendre d'epsilon |
+| `double_q` | `bool` | `False` | Double Q-Learning : deux Q-tables en parallèle. L'une sélectionne l'action (`argmax`), l'autre l'évalue. Réduit le biais d'overestimation inhérent au `max` de la mise à jour de Bellman |
+
+**Pourquoi :** `optimistic_init` est particulièrement efficace sur Taxi où les rewards sont rares (+20 seulement à la livraison) — l'agent est naturellement incité à visiter les paires inconnues. `double_q` corrige un biais statistique de Q-Learning standard qui tend à surestimer les valeurs d'action, ce qui dégrade la politique apprise.
+
+---
 
 #### 🟢 SARSA — `Sarsa/sarsa.py`
 
-| Paramètre | Type | Valeur par défaut | Rôle |
+| Paramètre | Type | Défaut | Rôle |
 |---|---|---|---|
-| `policy_type` | `str` | `'epsilon_greedy'` | Politique de sélection d'action : `epsilon_greedy`, `softmax` (Boltzmann) ou `expected` (Expected SARSA) |
+| `alpha` | `float` | `0.2` | Learning rate |
+| `gamma` | `float` | `0.9` | Discount factor |
+| `epsilon_decay` | `float` | `0.999` | Décroissance d'epsilon |
+| `policy_type` | `str` | `'epsilon_greedy'` | Politique de sélection d'action : `epsilon_greedy`, `softmax` (Boltzmann, utilise `temperature`) ou `expected` (Expected SARSA) |
 | `temperature` | `float` | `1.0` | Facteur d'échelle pour la politique softmax — plus bas = plus exploitant |
 | `n_steps` | `int` | `1` | Horizon de retour : `1` = SARSA standard, `n > 1` = n-step SARSA (Sutton & Barto ch.7) |
+| `lambda_` | `float` | `0.0` | SARSA(λ) avec traces d'éligibilité : `0` = SARSA standard, `0 < λ < 1` = intermédiaire, `λ → 1` ≈ Monte Carlo. Quand `lambda_ > 0`, `n_steps` est ignoré |
 
-**Méthodes ajoutées :**
-- `_choose_action(state)` — remplace le code epsilon-greedy inline ; dispatche vers softmax, epsilon-greedy ou expected selon `policy_type`
-- `_expected_value(state)` — calcule la valeur espérée sous politique epsilon-greedy, utilisée par Expected SARSA à la place de `Q(s', a')`
-- `_train_nstep(train_episodes, training_graph)` — boucle d'entraînement n-step dédiée ; appelée automatiquement par `train()` quand `n_steps > 1`
+**Méthodes :**
+- `_choose_action(state)` — dispatche vers softmax, epsilon-greedy ou expected selon `policy_type`
+- `_expected_value(state)` — valeur espérée sous politique epsilon-greedy (Expected SARSA)
+- `_train_nstep(...)` — boucle n-step SARSA ; appelée si `lambda_ == 0` et `n_steps > 1`
+- `_train_lambda(...)` — boucle SARSA(λ) avec traces d'éligibilité accumulantes ; appelée si `lambda_ > 0`
 
-**Pourquoi :** SARSA est on-policy, ce qui en fait le candidat naturel pour tester des variantes de politique. Expected SARSA réduit la variance en moyennant sur toutes les actions possibles. Le n-step permet de trouver le bon équilibre entre TD (1-step, biais fort) et Monte Carlo (retour complet, variance forte).
+**Pourquoi :** SARSA(λ) est la généralisation la plus puissante : au lieu d'un retour sur n steps discrets, les traces d'éligibilité propagent le signal de récompense en continu sur tout le chemin parcouru, avec décroissance exponentielle. C'est particulièrement efficace sur Taxi où le reward final (+20) doit remonter sur une séquence de 12+ steps.
 
 ---
 
 #### 🟡 Monte Carlo — `MonteCarlo/monte_carlo.py`
 
-| Paramètre | Type | Valeur par défaut | Rôle |
+| Paramètre | Type | Défaut | Rôle |
 |---|---|---|---|
-| `visit_mode` | `str` | `'first_visit'` | `first_visit` = mise à jour uniquement à la première visite d'une paire (s, a) dans l'épisode ; `every_visit` = mise à jour à chaque passage |
+| `alpha` | `float` | `0.05` | Learning rate |
+| `gamma` | `float` | `0.95` | Discount factor |
+| `epsilon_decay` | `float` | `0.9997` | Décroissance d'epsilon |
+| `visit_mode` | `str` | `'first_visit'` | `first_visit` = mise à jour uniquement à la première visite de (s, a) dans l'épisode ; `every_visit` = à chaque passage |
+| `exploring_starts` | `bool` | `False` | Démarre chaque épisode sur un état et une première action tirés aléatoirement dans l'espace complet. Garantit théoriquement la couverture de toutes les paires (s, a), sans dépendre d'epsilon pour l'exploration |
 
-**Pourquoi :** En first-visit, chaque paire (s, a) ne contribue qu'une fois au retour G de l'épisode — estimateur non biaisé mais plus lent à converger. Every-visit exploite davantage les données de chaque épisode au prix d'un léger biais sur les états fréquemment revisités.
+**Pourquoi :** `exploring_starts` est une condition suffisante de convergence pour Monte Carlo (Sutton & Barto th.5.2) — elle assure que toutes les paires (s, a) sont visitées infiniment souvent, quelle que soit la politique suivie. Sur Taxi (500 états × 6 actions = 3 000 paires), certaines paires rares ne sont jamais visitées avec epsilon-greedy seul.
 
 ---
 
 #### 🟣 DQN — `deep_Q_learning/deep_q_learning.py`
 
-| Paramètre | Type | Valeur par défaut | Rôle |
+| Paramètre | Type | Défaut | Rôle |
 |---|---|---|---|
-| `optimizer_type` | `str` | `'adam'` | Optimiseur PyTorch : `adam`, `rmsprop` ou `sgd` |
+| `gamma` | `float` | `0.99` | Discount factor |
+| `epsilon_decay` | `float` | `0.9995` | Décroissance d'epsilon |
+| `lr` | `float` | `0.001` | Learning rate de l'optimiseur |
+| `batch_size` | `int` | `64` | Taille du mini-batch tiré du replay buffer |
+| `target_update` | `int` | `10` | Fréquence (en épisodes) de copie dure du target network. Ignoré si `tau > 0` |
+| `buffer_size` | `int` | `50000` | Capacité du replay buffer (expériences stockées) |
+| `optimizer_type` | `str` | `'adam'` | Optimiseur : `adam`, `rmsprop` ou `sgd` |
+| `hidden_sizes` | `tuple` | `(128, 64)` | Architecture du réseau : taille de chaque couche cachée |
+| `double_dqn` | `bool` | `False` | Double DQN : `policy_net` sélectionne l'action, `target_net` l'évalue. Réduit l'overestimation de DQN vanilla |
+| `dueling` | `bool` | `False` | Architecture Dueling DQN : deux streams séparés V(s) et A(s, a), recombinés en `Q(s,a) = V(s) + A(s,a) − mean(A)`. Efficace quand plusieurs actions ont la même valeur |
+| `tau` | `float` | `0.0` | Soft update du target network : `θ_target ← τ·θ + (1−τ)·θ_target` à chaque step. `0` = hard update périodique (comportement original) |
+| `use_factored_encoding` | `bool` | `False` | Encode l'état en vecteur factorisé (taxi_row, taxi_col, pass_idx, dest_idx) au lieu d'un one-hot 500D. Restaure la capacité de généralisation inter-états du réseau |
 
-**Méthode ajoutée :**
-- `_build_optimizer()` — instancie l'optimiseur selon `optimizer_type` et `lr` ; appelée dans `__init__` et à réappeler manuellement si les deux paramètres sont modifiés après construction
+**Méthodes :**
+- `_build_networks()` — (re)construit `policy_net` et `target_net` selon `dueling` et `hidden_sizes` ; à appeler après avoir changé ces paramètres
+- `_build_optimizer()` — instancie l'optimiseur selon `optimizer_type` et `lr`
+- `_rebuild_networks_for_encoding()` — à appeler si `use_factored_encoding` est changé après `__init__`
 
-**Pourquoi :** Adam est le défaut raisonnable pour le DQN, mais RMSprop est historiquement recommandé dans le papier original DeepMind (2013). Exposer ce choix permet de le valider empiriquement sur Taxi.
-
----
-
-#### 🔵 Q-Learning — `Q_learning/q_learning.py`
-
-Pas de nouvel hyperparamètre individuel : Q-Learning sert de référence algorithmique (off-policy pur, sans variante). Les labels des hyperparamètres ont été harmonisés (`# Hyperparamètres communs`) pour la cohérence avec les autres modèles.
+**Pourquoi :** `double_dqn` et `dueling` sont les deux extensions les plus documentées de DQN vanilla (van Hasselt et al. 2016, Wang et al. 2016) et sont maintenant standard dans les implémentations modernes. `soft_update` (τ > 0) stabilise l'entraînement en évitant les sauts brusques dans les valeurs cibles lors de la copie périodique.
 
 ---
 
 ### Script de benchmark — `benchmark.py`
 
-Nouveau script racine qui orchestre la capture de métriques en trois phases indépendantes et génère les traces visuelles.
+Script racine qui orchestre la capture de métriques en trois phases indépendantes et génère les traces visuelles.
 
 #### Principe des phases
 
@@ -473,8 +503,6 @@ Chaque phase est rejouable indépendamment. Les résultats persistent en JSON en
 
 #### Utilisation
 
-Le benchmark tourne dans Docker via le service dédié `benchmark` défini dans `docker-compose.yml` :
-
 ```bash
 docker compose run --rm benchmark benchmark.py baseline
 
@@ -486,16 +514,15 @@ docker compose run --rm benchmark benchmark.py compare
 ```
 
 > [!TIP]
-> `--no-interactive` désactive les prompts et utilise directement les valeurs CLI — utile pour scripter :
+> `--no-interactive` utilise les défauts par modèle sans prompt. `--train-episodes N` et `--test-episodes N` forcent une valeur commune à tous les modèles :
 > ```bash
-> docker compose run --rm benchmark benchmark.py baseline --train-episodes 2000 --test-episodes 50 --no-interactive
+> docker compose run --rm benchmark benchmark.py baseline --no-interactive
+> docker compose run --rm benchmark benchmark.py grid --train-episodes 5000 --no-interactive
 > ```
 
 #### Flow interactif (phases baseline, grid, final)
 
-Au lancement, le script pose deux questions dans l'ordre :
-
-**1. Sélection des modèles** — menu curses navigable au clavier :
+**1. Sélection des modèles** — menu curses navigable :
 
 ```
 Modèles à exécuter
@@ -507,27 +534,40 @@ Modèles à exécuter
     [ ]  DQN
 ```
 
-**2. Configuration des épisodes** — une seule saisie, appliquée à tous les modèles cochés :
+**2. Configuration des épisodes par modèle** — valeurs calibrées par algorithme, modifiables individuellement :
 
 ```
---- Configuration des épisodes (tous les modèles) ---
+--- Configuration des épisodes par modèle ---
 
-  Épisodes d'entraînement [10000] :
-  Épisodes de test        [100] :
+  Q-Learning :
+    Épisodes d'entraînement [8000] :
+    Épisodes de test        [200] :
+
+  SARSA :
+    Épisodes d'entraînement [8000] :
+    Épisodes de test        [200] :
+
+  Monte Carlo :
+    Épisodes d'entraînement [15000] :
+    Épisodes de test        [200] :
+
+  DQN :
+    Épisodes d'entraînement [4000] :
+    Épisodes de test        [100] :
 ```
 
-Appuyer sur Entrée sans saisir applique la valeur par défaut entre crochets.
+Les défauts sont calibrés sur la vitesse de convergence et le coût computationnel de chaque algorithme. DQN converge vite grâce au replay buffer mais chaque épisode coûte ~100× plus cher que les méthodes tabulaires. Monte Carlo a besoin de plus d'épisodes car les mises à jour n'ont lieu qu'en fin d'épisode.
 
 #### Espace de recherche du grid search
 
 | Modèle | Paramètres explorés | Combinaisons |
 |---|---|---|
-| Q-Learning | α × γ × ε_decay | 27 |
-| SARSA | α × γ × ε_decay × policy_type × n_steps | 32 |
-| Monte Carlo | α × γ × ε_decay × visit_mode | 36 |
-| DQN | lr × γ × batch_size × optimizer_type | 16 |
+| Q-Learning | α[3] × γ[3] × ε_decay[3] × optimistic_init[2] × double_q[2] | 108 |
+| SARSA | α[2] × γ[2] × ε_decay[2] × policy_type[2] × n_steps[2] × lambda_[2] | 64 |
+| Monte Carlo | α[2] × γ[3] × ε_decay[3] × visit_mode[2] × exploring_starts[2] | 72 |
+| DQN | lr[2] × γ[2] × batch_size[2] × optimizer_type[2] × double_dqn[2] × dueling[2] | 64 |
 
-Le critère de sélection est le **reward moyen maximum** sur les épisodes de test.
+Le balayage initial tourne sur 1 seed (rapide). Les 3 meilleures combinaisons sont ensuite ré-évaluées sur 4 seeds pour désigner le vainqueur en espérance plutôt que par chance de tirage.
 
 #### Sorties produites
 
@@ -536,23 +576,9 @@ Le critère de sélection est le **reward moyen maximum** sur les épisodes de t
 | `results/baseline.json` | Métriques + params de chaque modèle avant fine-tuning |
 | `results/grid_search.json` | Toutes les combinaisons testées + meilleurs params par modèle |
 | `results/final.json` | Métriques + params de chaque modèle après fine-tuning |
-| `results/plots/baseline.png` | Bar chart des 3 métriques à la baseline |
-| `results/plots/final.png` | Bar chart des 3 métriques après fine-tuning |
+| `results/plots/baseline.png` | Bar chart des métriques à la baseline |
+| `results/plots/final.png` | Bar chart des métriques après fine-tuning |
 | `results/plots/comparison.png` | Bar chart avant/après côte à côte pour les 4 modèles |
-
-Le script affiche également un tableau terminal avec les deltas Δ (reward, steps, penalties) permettant de lire le gain en un coup d'œil :
-
-```
-======================================================
-                  Reward          Steps       Penalties
-Modèle         Avant  Après    Δ  Avant  Après    Δ  ...
-======================================================
-Q-Learning      x.x    x.x  +x.x  xx.x   xx.x  -x.x  ...
-SARSA           x.x    x.x  +x.x  xx.x   xx.x  -x.x  ...
-...
-```
-
-#### Architecture des fichiers de sortie
 
 ```
 results/

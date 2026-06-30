@@ -1,12 +1,38 @@
-"""Agent Monte Carlo (first-visit) pour Taxi-v3/v4.
+"""Agent Monte Carlo pour Taxi-v3/v4.
 Algorithme episodique : la mise à jour de la Q-table se fait uniquement
-à la fin de chaque épisode, en utilisant le retour cumulé réel (pas de bootstrapping)."""
+à la fin de chaque épisode, en utilisant le retour cumulé réel (pas de
+bootstrapping).
+
+Correction majeure apportée (cf. revue de code) :
+- BUG CORRIGÉ : visit_mode='first_visit' ne faisait PAS du first-visit MC.
+  L'ancienne implémentation parcourait l'épisode à l'envers (de la fin vers
+  le début) en construisant un set `visited` au fur et à mesure : la
+  *dernière* occurrence chronologique d'une paire (s,a) était donc rencontrée
+  *avant* sa première occurrence dans cette boucle arrière, et c'est elle qui
+  déclenchait la mise à jour — la vraie première occurrence (rencontrée plus
+  tard dans la boucle arrière) était ensuite ignorée car déjà dans `visited`.
+  Concrètement, l'ancien "first_visit" était en réalité un "last-visit" :
+  le retour utilisé pour mettre à jour Q(s,a) était celui calculé depuis la
+  *dernière* occurrence de la paire dans l'épisode, pas la première.
+  Ce bug explique probablement une bonne partie de la sous-performance
+  spectaculaire attribuée à 'first_visit' dans le rapport (cas d'autant plus
+  fréquents que gamma est élevé et que l'epsilon_decay est lent, deux
+  conditions qui maximisent le nombre de répétitions de paires (s,a) dans un
+  épisode).
+  Le calcul se fait maintenant en deux passes : une passe avant pour
+  identifier l'indice de la première occurrence de chaque paire (s,a), puis
+  la passe arrière habituelle pour calculer G et ne mettre à jour qu'à cet
+  indice quand visit_mode='first_visit'.
+- env_version par défaut passé à "v3".
+- Ajout d'un paramètre `seed` optionnel sur train()/test().
+- test() retourne un dict avec métriques agrégées + listes brutes par épisode.
+- Avertissement si epsilon reste élevé en fin d'entraînement.
+"""
 
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
 from time import sleep
-from collections import defaultdict
 import random
 
 try:
@@ -17,7 +43,7 @@ except ImportError:
 
 
 class MonteCarlo:
-    def __init__(self, render_mode="rgb_array", env_version="v4"):
+    def __init__(self, render_mode="rgb_array", env_version="v3"):
         self.render_mode = render_mode
         try:
             self.env = gym.make(f"Taxi-{env_version}", render_mode=render_mode)
@@ -37,6 +63,8 @@ class MonteCarlo:
 
         # Hyperparamètres individuels Monte Carlo
         self.visit_mode = 'first_visit'  # 'first_visit' ou 'every_visit'
+        self.exploring_starts = False    # démarrer chaque épisode sur un (état, action) aléatoire
+                                         # garantit la couverture de tous les (s,a) sans dépendre d'epsilon
 
     def _choose_action(self, state):
         """Sélection epsilon-greedy."""
@@ -44,9 +72,13 @@ class MonteCarlo:
             return self.env.action_space.sample()
         return np.argmax(self.q_table[state])
 
-    def train(self, train_episodes=25000, training_graph=False):
-        """Entraîne l'agent via Monte Carlo first-visit.
+    def train(self, train_episodes=25000, training_graph=False, seed=None):
+        """Entraîne l'agent via Monte Carlo (first-visit ou every-visit).
         Retourne un np.array des rewards par épisode."""
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+
         reward_per_episode = np.zeros(train_episodes)
         steps_per_episode = np.zeros(train_episodes)
         penalties_per_episode = np.zeros(train_episodes)
@@ -54,14 +86,31 @@ class MonteCarlo:
         for i in range(train_episodes):
             # Générer un épisode complet
             episode = []
-            state, _ = self.env.reset()
+            if seed is not None and i == 0:
+                state, _ = self.env.reset(seed=seed)
+            else:
+                state, _ = self.env.reset()
+
+            if self.exploring_starts:
+                random_state = self.env.observation_space.sample()
+                self.env.unwrapped.s = random_state
+                state = random_state
+                first_action = self.env.action_space.sample()
+            else:
+                first_action = None
+
             done = False
             total_reward = 0
             steps = 0
             penalties = 0
+            first_step = True
 
             while not done:
-                action = self._choose_action(state)
+                if first_step and first_action is not None:
+                    action = first_action
+                    first_step = False
+                else:
+                    action = self._choose_action(state)
                 next_state, reward, done, truncated, _ = self.env.step(action)
                 done = done or truncated
 
@@ -73,16 +122,30 @@ class MonteCarlo:
                 steps += 1
                 state = next_state
 
-            # Mise à jour MC selon visit_mode
-            G = 0
-            visited = set()
-            for state, action, reward in reversed(episode):
-                G = self.gamma * G + reward
-                sa_pair = (state, action)
+            # FIX : mise à jour MC en deux passes pour respecter la vraie
+            # sémantique de first_visit / every_visit.
+            #
+            # Passe 1 (avant) : indice de la PREMIÈRE occurrence chronologique
+            # de chaque paire (s, a) dans l'épisode.
+            first_seen = {}
+            for t, (s, a, _r) in enumerate(episode):
+                if (s, a) not in first_seen:
+                    first_seen[(s, a)] = t
 
-                if self.visit_mode == 'every_visit' or sa_pair not in visited:
-                    visited.add(sa_pair)
-                    self.q_table[state, action] += self.alpha * (G - self.q_table[state, action])
+            # Passe 2 (arrière) : calcul du retour cumulé G (qui DOIT se faire
+            # en remontant l'épisode), mise à jour de Q uniquement :
+            #   - à chaque pas si every_visit
+            #   - uniquement au pas où la paire est apparue pour la première
+            #     fois si first_visit (et nulle part ailleurs)
+            G = 0
+            for t in range(len(episode) - 1, -1, -1):
+                state_t, action_t, reward_t = episode[t]
+                G = self.gamma * G + reward_t
+                sa_pair = (state_t, action_t)
+
+                if self.visit_mode == 'every_visit' or first_seen[sa_pair] == t:
+                    self.q_table[state_t, action_t] += \
+                        self.alpha * (G - self.q_table[state_t, action_t])
 
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
@@ -102,20 +165,32 @@ class MonteCarlo:
         print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
         print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
 
+        if self.epsilon > 0.05:
+            print(f"  ATTENTION : epsilon final = {self.epsilon:.4f} (> 0.05). "
+                  f"epsilon_decay={self.epsilon_decay} est probablement trop lent "
+                  f"pour {train_episodes} épisodes.")
+
         if training_graph:
             self._plot_training(reward_per_episode, steps_per_episode)
 
         return reward_per_episode
 
-    def test(self, test_episodes=1, timestamp=0.2, fast_testing=False, final_frame_pause=0):
-        """Évalue l'agent entraîné (greedy policy, ε=0)."""
+    def test(self, test_episodes=1, timestamp=0.2, fast_testing=False,
+             final_frame_pause=0, seed=None):
+        """Évalue l'agent entraîné (greedy policy, ε=0).
+
+        Retourne un dict avec métriques agrégées + listes brutes par épisode.
+        """
         total_rewards = []
         total_steps = []
         total_penalties = []
         total_completions = []
 
         for i in range(test_episodes):
-            state, _ = self.env.reset()
+            if seed is not None and i == 0:
+                state, _ = self.env.reset(seed=seed + 10_000)
+            else:
+                state, _ = self.env.reset()
             done = False
             episode_reward = 0
             steps = 0
@@ -149,18 +224,29 @@ class MonteCarlo:
         if not fast_testing:
             plt.close()
 
-        avg_steps = np.mean(total_steps)
-        avg_penalties = np.mean(total_penalties)
-        avg_reward = np.mean(total_rewards)
+        avg_steps = float(np.mean(total_steps))
+        avg_penalties = float(np.mean(total_penalties))
+        avg_reward = float(np.mean(total_rewards))
         completion_rate = float(np.mean(total_completions)) * 100
 
         print(f"\nRésultats après {test_episodes} épisodes de test :")
         print(f"  Average steps    : {avg_steps:.2f}")
         print(f"  Average penalties: {avg_penalties:.2f}")
-        print(f"  Average reward   : {avg_reward:.2f}")
+        print(f"  Average reward   : {avg_reward:.2f} (± {np.std(total_rewards):.2f})")
         print(f"  Completion rate  : {completion_rate:.1f}%")
 
-        return avg_steps, avg_penalties, avg_reward, completion_rate
+        return {
+            'reward': avg_reward,
+            'steps': avg_steps,
+            'penalties': avg_penalties,
+            'completion_rate': completion_rate,
+            'reward_std': float(np.std(total_rewards)),
+            'steps_std': float(np.std(total_steps)),
+            'episode_rewards': total_rewards,
+            'episode_steps': total_steps,
+            'episode_penalties': total_penalties,
+            'episode_completions': total_completions,
+        }
 
     def _render_frame(self, state, action, reward, episode_reward, episode):
         """Affiche une frame selon le render_mode."""

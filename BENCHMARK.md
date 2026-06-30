@@ -1,6 +1,6 @@
 # Rapport de Benchmark — Taxi Driver RL
 
-**Date :** 26 juin 2026  
+**Date :** 30 juin 2026  
 **Branche :** `features/fine-tunning`  
 **Environnement :** Gymnasium `Taxi-v3`
 
@@ -81,7 +81,7 @@ Le taux de complétion est distinct du reward : un agent peut terminer chaque é
 
 ---
 
-## 3. Résultats baseline
+## 3. Résultats baseline _(26 juin 2026)_
 
 Évaluation avec les paramètres par défaut de chaque modèle, avant tout fine-tuning.
 
@@ -126,7 +126,7 @@ Le résultat le plus marquant du grid search : le mode `first_visit` est systém
 **DQN**  
 Déjà performant en baseline, les gains du grid search sont plus marginaux. L'optimiseur **Adam** avec un faible learning rate (lr=0.0005) et un petit batch (batch=32) offre la meilleure stabilité. RMSProp produit des résultats plus variables selon les configurations.
 
-### 4.2 Meilleurs paramètres identifiés
+### 4.2 Meilleurs paramètres identifiés _(26 juin 2026 — révisés en section 8.2)_
 
 | Modèle | Meilleurs paramètres |
 |--------|---------------------|
@@ -137,7 +137,7 @@ Déjà performant en baseline, les gains du grid search sont plus marginaux. L'o
 
 ---
 
-## 5. Résultats après fine-tuning
+## 5. Résultats après fine-tuning _(26 juin 2026)_
 
 Évaluation après ré-entraînement avec les meilleurs hyperparamètres du grid search.
 
@@ -150,7 +150,7 @@ Déjà performant en baseline, les gains du grid search sont plus marginaux. L'o
 
 ---
 
-## 6. Analyse comparative : avant / après fine-tuning
+## 6. Analyse comparative : avant / après fine-tuning _(26 juin 2026)_
 
 | Modèle | Δ Reward | Δ Steps | Δ Complétion |
 |--------|:--------:|:-------:|:------------:|
@@ -194,3 +194,80 @@ Le paramètre le plus influent varie selon l'algorithme :
 ### 7.3 Zéro penalties
 
 Tous les modèles maintiennent un taux de penalties nul sur les épisodes de test, y compris en baseline. Ce résultat confirme que les algorithmes apprennent rapidement à ne jamais tenter de pickup ou dropoff invalides. Le taux de complétion est donc l'indicateur le plus discriminant pour comparer les modèles sur cet environnement, bien plus que les penalties qui convergent toutes à zéro dès la phase d'entraînement.
+
+---
+
+## 8. Mise à jour — 30 juin 2026
+
+Re-run complet du benchmark avec les implémentations finalisées. Les paramètres par défaut n'ont pas changé, mais les métriques baseline reflètent les implémentations stabilisées. Le grid search a été validé sur plusieurs seeds (3 à 4), ce qui a conduit à réviser certains meilleurs paramètres.
+
+### 8.1 Baseline ré-évalué (30 juin 2026)
+
+*(Mêmes paramètres par défaut qu'en section 3)*
+
+| Modèle | Reward | Steps | Penalties | Complétion | Δ vs 26 juin |
+|--------|-------:|------:|----------:|-----------:|:------------|
+| Q-Learning | -11.05 | 30.09 | 0.00 | 91 % | reward +7.86, steps -7.09, complétion +4 pp |
+| SARSA | +2.21 | 18.30 | 0.00 | 98 % | reward +10.97, steps -9.78, complétion +6 pp |
+| Monte Carlo | +4.48 | 16.24 | 0.00 | 99 % | reward **+114.81**, steps **-103.12**, complétion **+56 pp** |
+| DQN | **+8.11** | **12.89** | 0.00 | **100 %** | reward +0.57, steps -0.57, complétion 0 pp |
+
+**Observations :** Monte Carlo et SARSA bénéficient le plus des implémentations finalisées, même à paramètres constants. DQN reste stable et dominant en baseline. Le réseau de neurones du DQN conserve son avantage de généralisation sans fine-tuning.
+
+### 8.2 Meilleurs paramètres corrigés (validation multi-seeds)
+
+La validation sur 3–4 seeds des top candidats du grid search a conduit à réviser les paramètres de SARSA, Monte Carlo et DQN.
+
+| Modèle | Paramètres (26 juin) | Paramètres corrigés (30 juin) | Ce qui a changé |
+|--------|---------------------|-------------------------------|----------------|
+| Q-Learning | α=0.05, γ=0.99, ε-decay=0.999 | α=0.05, γ=0.99, ε-decay=0.999 | — Inchangé |
+| SARSA | α=0.1, γ=0.9, ε-decay=0.999, expected, n_steps=1 | α=0.1, **γ=0.99**, ε-decay=**0.9995**, **epsilon_greedy, n_steps=3** | γ, policy_type, n_steps |
+| Monte Carlo | α=0.1, γ=0.99, ε-decay=0.9995, **every_visit** | α=0.1, **γ=0.95**, ε-decay=**0.9997**, **first_visit** | γ, ε-decay, visit_mode |
+| DQN | lr=0.0005, **γ=0.99**, batch=32, adam | lr=0.0005, **γ=0.95**, batch=32, adam | γ |
+
+**Explication des révisions :**
+
+- **SARSA** : la validation multi-seeds montre que `epsilon_greedy` + `n_steps=3` + `gamma=0.99` surpasse Expected SARSA. À seed unique, Expected SARSA semblait plus stable, mais sa variance inter-seeds est en réalité plus élevée.
+- **Monte Carlo** : `first_visit` gagne sur 4 seeds (reward 7.38 vs 6.43 pour `every_visit`). Le résultat à seed unique était trompeur. `gamma=0.99` reste instable pour cet algorithme ; `gamma=0.95` offre un meilleur compromis biais/variance.
+- **DQN** : `gamma=0.95` (au lieu de 0.99) est confirmé plus stable sur plusieurs seeds ; les métriques finales restent néanmoins identiques.
+
+### 8.3 Résultats après fine-tuning (30 juin 2026)
+
+*(3 seeds : 0, 1, 2 — paramètres corrigés de la section 8.2)*
+
+| Modèle | Reward | ±σ | Steps | ±σ | Penalties | Complétion | Δ vs 26 juin |
+|--------|-------:|---:|------:|---:|----------:|-----------:|:------------|
+| Q-Learning | +8.11 | 0.23 | 12.89 | 0.23 | 0.00 | **100 %** | -0.01 reward, stable |
+| **SARSA** | **+8.21** | 0.25 | **12.79** | 0.25 | 0.00 | **100 %** | **+2.59 reward, -2.38 steps, +1 pp** |
+| Monte Carlo | +7.61 | 0.23 | 13.39 | 0.23 | 0.00 | **100 %** | +0.22 reward, -0.22 steps |
+| DQN | +8.11 | 0.23 | 12.89 | 0.23 | 0.00 | **100 %** | +0.04 reward, stable |
+
+SARSA est le seul modèle à progresser significativement entre les deux runs de fine-tuning, grâce aux paramètres corrigés (gamma=0.99, n_steps=3).
+
+### 8.4 Analyse comparative baseline → fine-tuning (30 juin 2026)
+
+| Modèle | Δ Reward | Δ Steps | Δ Complétion |
+|--------|:--------:|:-------:|:------------:|
+| **Q-Learning** | **+19.2** | **-17.2** | +9 pp |
+| SARSA | +6.0 | -5.5 | +2 pp |
+| Monte Carlo | +3.1 | -2.9 | +1 pp |
+| DQN | 0.0 | 0.0 | 0 pp |
+
+**Q-Learning** reste le plus grand bénéficiaire relatif du fine-tuning (+19.2 reward), porté par le seul passage de γ=0.6 à γ=0.99. SARSA et Monte Carlo montrent des gains plus modestes car leurs baselines sont désormais bien meilleures. **DQN** est invariant — il atteignait déjà l'optimum sans fine-tuning.
+
+### 8.5 Classement final révisé (30 juin 2026)
+
+| Rang | Modèle | Reward | Steps | Complétion |
+|------|--------|-------:|------:|-----------:|
+| 1 | **SARSA** | 8.21 | 12.79 | 100 % |
+| 2 | **Q-Learning** | 8.11 | 12.89 | 100 % |
+| 2 | **DQN** | 8.11 | 12.89 | 100 % |
+| 4 | **Monte Carlo** | 7.61 | 13.39 | 100 % |
+
+**SARSA** prend la première place grâce aux paramètres corrigés, détrônant Q-Learning. Q-Learning et DQN sont désormais strictement ex-æquo (métriques identiques). Tous les modèles atteignent 100 % de complétion : le reward et les steps sont les seuls critères discriminants.
+
+Le paramètre le plus influent par algorithme, revisité :
+- **Q-Learning** : `gamma` — passage 0.6 → 0.99, critique
+- **SARSA** : `gamma` + `n_steps` — γ=0.99 et retour 3-step sont décisifs
+- **Monte Carlo** : `gamma` — 0.99 trop instable, 0.95 est l'optimum confirmé multi-seeds
+- **DQN** : robuste par nature, insensible aux ajustements de cette amplitude

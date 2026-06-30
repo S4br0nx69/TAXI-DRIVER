@@ -1,7 +1,27 @@
 """Agent Deep Q-Learning (DQN) pour Taxi-v3/v4.
 Utilise un réseau de neurones PyTorch pour approximer la Q-function,
 un replay buffer pour stabiliser l'entraînement,
-et un target network pour réduire l'instabilité."""
+et un target network pour réduire l'instabilité.
+
+Corrections / ajouts apportés (cf. revue de code) :
+- env_version par défaut passé à "v3".
+- Ajout d'un paramètre `seed` optionnel sur train()/test() : fixe random,
+  numpy ET torch (CPU + CUDA si disponible), pour rendre l'entraînement
+  reproductible — ce qui n'existait pas du tout auparavant.
+- test() retourne un dict avec métriques agrégées + listes brutes par
+  épisode (permet de calculer un écart-type, impossible avant).
+- Avertissement si epsilon reste élevé en fin d'entraînement.
+- Option `use_factored_encoding` (désactivée par défaut, donc comportement
+  identique à l'original) : l'encodage one-hot actuel donne à chaque état un
+  vecteur orthogonal aux autres, ce qui prive le réseau de toute possibilité
+  de généralisation inter-états (deux états voisins dans la grille n'ont
+  aucune similarité dans leur représentation). Activer ce flag remplace
+  l'encodage par un vecteur factorisé (position taxi, position passager,
+  destination) qui restaure une vraie capacité de généralisation — utile
+  pour vérifier dans quelle mesure l'égalité observée DQN ≈ Q-Learning sur
+  Taxi-v3 est un artefact du choix d'encodage plutôt qu'une propriété
+  intrinsèque de l'environnement.
+"""
 
 import gymnasium as gym
 import numpy as np
@@ -37,6 +57,35 @@ class QNetwork(nn.Module):
         return self.network(x)
 
 
+class DuelingQNetwork(nn.Module):
+    """Architecture Dueling DQN : sépare la Q-function en V(s) et A(s,a).
+    Q(s,a) = V(s) + A(s,a) - mean_a'(A(s,a'))
+    Efficace quand beaucoup d'actions ont la même valeur (ex. milieu de trajet Taxi).
+    """
+    def __init__(self, state_size, action_size, hidden_sizes=(128, 64)):
+        super().__init__()
+        shared_layers = []
+        in_size = state_size
+        for h in hidden_sizes[:-1]:
+            shared_layers.extend([nn.Linear(in_size, h), nn.ReLU()])
+            in_size = h
+        self.shared = nn.Sequential(*shared_layers) if shared_layers else nn.Identity()
+
+        last_h = hidden_sizes[-1]
+        self.value_stream = nn.Sequential(
+            nn.Linear(in_size, last_h), nn.ReLU(), nn.Linear(last_h, 1)
+        )
+        self.advantage_stream = nn.Sequential(
+            nn.Linear(in_size, last_h), nn.ReLU(), nn.Linear(last_h, action_size)
+        )
+
+    def forward(self, x):
+        shared    = self.shared(x)
+        value     = self.value_stream(shared)
+        advantage = self.advantage_stream(shared)
+        return value + advantage - advantage.mean(dim=1, keepdim=True)
+
+
 class ReplayBuffer:
     """Experience replay buffer pour décorréler les échantillons."""
     def __init__(self, capacity=10000):
@@ -56,7 +105,7 @@ class ReplayBuffer:
 
 
 class DQNAgent:
-    def __init__(self, render_mode="rgb_array", env_version="v4"):
+    def __init__(self, render_mode="rgb_array", env_version="v3"):
         self.render_mode = render_mode
         try:
             self.env = gym.make(f"Taxi-{env_version}", render_mode=render_mode)
@@ -69,11 +118,14 @@ class DQNAgent:
         self.action_size = self.env.action_space.n
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # Réseaux
-        self.policy_net = QNetwork(self.state_size, self.action_size).to(self.device)
-        self.target_net = QNetwork(self.state_size, self.action_size).to(self.device)
-        self.target_net.load_state_dict(self.policy_net.state_dict())
-        self.target_net.eval()
+        # Option d'encodage : False = comportement original (one-hot pur,
+        # aucune généralisation inter-états possible). True = encodage
+        # factorisé (position taxi/passager/destination), qui restaure une
+        # vraie capacité de généralisation pour le réseau. Décrit en tête de
+        # fichier — désactivé par défaut pour ne rien changer au comportement
+        # existant tant que ce n'est pas explicitement demandé.
+        self.use_factored_encoding = False
+        self.encoded_state_size = self.state_size
 
         # Hyperparamètres communs
         self.gamma = 0.99
@@ -87,11 +139,26 @@ class DQNAgent:
         self.target_update = 10
         self.buffer_size = 50000
         self.optimizer_type = 'adam'  # 'adam', 'rmsprop', 'sgd'
+        self.hidden_sizes   = (128, 64)  # architecture réseau (couches cachées)
+        self.double_dqn     = False       # Double DQN : policy_net choisit, target_net évalue
+        self.dueling        = False       # Dueling DQN : streams V(s) et A(s,a) séparés
+        self.tau            = 0.0         # soft update : 0=hard update périodique, >0=τ·θ+(1-τ)·θ_target
 
-        # Composants
-        self.optimizer = self._build_optimizer()
+        # Composants (réseaux + optimiseur construits en dernier, après les hyperparams)
         self.loss_fn = nn.HuberLoss()
         self.memory = ReplayBuffer(capacity=self.buffer_size)
+        self._build_networks()
+        self.optimizer = self._build_optimizer()
+
+    def _build_networks(self):
+        """Instancie policy_net et target_net selon dueling et hidden_sizes."""
+        net_cls = DuelingQNetwork if self.dueling else QNetwork
+        self.policy_net = net_cls(self.encoded_state_size, self.action_size,
+                                  self.hidden_sizes).to(self.device)
+        self.target_net = net_cls(self.encoded_state_size, self.action_size,
+                                  self.hidden_sizes).to(self.device)
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+        self.target_net.eval()
 
     def _build_optimizer(self):
         """Construit l'optimiseur selon optimizer_type."""
@@ -101,9 +168,26 @@ class DQNAgent:
             return optim.SGD(self.policy_net.parameters(), lr=self.lr)
         return optim.Adam(self.policy_net.parameters(), lr=self.lr)
 
+    def _rebuild_networks_for_encoding(self):
+        """À appeler si use_factored_encoding ou dueling est changé après __init__ :
+        la taille d'entrée et l'architecture du réseau peuvent changer, donc les
+        réseaux et l'optimiseur doivent être reconstruits."""
+        self.encoded_state_size = 4 if self.use_factored_encoding else self.state_size
+        self._build_networks()
+        self.optimizer = self._build_optimizer()
+
     def _encode_state(self, state):
-        """Encode un état entier en one-hot vector."""
-        one_hot = np.zeros(self.state_size)
+        """Encode un état entier soit en one-hot, soit en vecteur factorisé
+        selon self.use_factored_encoding (cf. note en tête de fichier)."""
+        if self.use_factored_encoding:
+            taxi_row, taxi_col, pass_idx, dest_idx = self.env.unwrapped.decode(state)
+            return np.array([
+                taxi_row / 4.0,
+                taxi_col / 4.0,
+                pass_idx / 4.0,
+                dest_idx / 3.0,
+            ], dtype=np.float32)
+        one_hot = np.zeros(self.state_size, dtype=np.float32)
         one_hot[state] = 1.0
         return one_hot
 
@@ -123,7 +207,7 @@ class DQNAgent:
 
         states, actions, rewards, next_states, dones = self.memory.sample(self.batch_size)
 
-        # Encodage one-hot
+        # Encodage
         state_batch = torch.FloatTensor(
             np.array([self._encode_state(s) for s in states])).to(self.device)
         next_state_batch = torch.FloatTensor(
@@ -135,9 +219,14 @@ class DQNAgent:
         # Q(s, a) courant
         current_q = self.policy_net(state_batch).gather(1, action_batch).squeeze(1)
 
-        # Q cible : r + γ * max Q_target(s', a')
+        # Q cible
         with torch.no_grad():
-            next_q = self.target_net(next_state_batch).max(1)[0]
+            if self.double_dqn:
+                # Double DQN : policy_net sélectionne l'action, target_net l'évalue
+                best_actions = self.policy_net(next_state_batch).argmax(1, keepdim=True)
+                next_q = self.target_net(next_state_batch).gather(1, best_actions).squeeze(1)
+            else:
+                next_q = self.target_net(next_state_batch).max(1)[0]
             next_q[done_batch] = 0.0
             target_q = reward_batch + self.gamma * next_q
 
@@ -149,15 +238,30 @@ class DQNAgent:
 
         return loss.item()
 
-    def train(self, train_episodes=25000, training_graph=False):
-        """Entraîne l'agent DQN. Retourne un np.array des rewards par épisode."""
+    def train(self, train_episodes=25000, training_graph=False, seed=None):
+        """Entraîne l'agent DQN. Retourne un np.array des rewards par épisode.
+
+        seed : si fourni, fixe random, numpy ET torch (CPU + CUDA si
+        disponible), et initialise le RNG de l'environnement une seule fois
+        au premier reset.
+        """
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+            torch.manual_seed(seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(seed)
+
         reward_per_episode = np.zeros(train_episodes)
         steps_per_episode = np.zeros(train_episodes)
         penalties_per_episode = np.zeros(train_episodes)
         losses = []
 
         for i in range(train_episodes):
-            state, _ = self.env.reset()
+            if seed is not None and i == 0:
+                state, _ = self.env.reset(seed=seed)
+            else:
+                state, _ = self.env.reset()
             done = False
             total_reward = 0
             steps = 0
@@ -182,7 +286,14 @@ class DQNAgent:
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
             # Mise à jour du target network
-            if i % self.target_update == 0:
+            if self.tau > 0:
+                # Soft update : θ_target ← τ·θ_policy + (1-τ)·θ_target
+                for param, target_param in zip(self.policy_net.parameters(),
+                                               self.target_net.parameters()):
+                    target_param.data.copy_(
+                        self.tau * param.data + (1 - self.tau) * target_param.data
+                    )
+            elif i % self.target_update == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
 
             reward_per_episode[i] = total_reward
@@ -205,20 +316,32 @@ class DQNAgent:
         print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
         print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
 
+        if self.epsilon > 0.05:
+            print(f"  ATTENTION : epsilon final = {self.epsilon:.4f} (> 0.05). "
+                  f"epsilon_decay={self.epsilon_decay} est probablement trop lent "
+                  f"pour {train_episodes} épisodes.")
+
         if training_graph:
             self._plot_training(reward_per_episode, steps_per_episode, losses)
 
         return reward_per_episode
 
-    def test(self, test_episodes=1, timestamp=0.2, fast_testing=False, final_frame_pause=0):
-        """Évalue l'agent entraîné (greedy policy, ε=0)."""
+    def test(self, test_episodes=1, timestamp=0.2, fast_testing=False,
+             final_frame_pause=0, seed=None):
+        """Évalue l'agent entraîné (greedy policy, ε=0).
+
+        Retourne un dict avec métriques agrégées + listes brutes par épisode.
+        """
         total_rewards = []
         total_steps = []
         total_penalties = []
         total_completions = []
 
         for i in range(test_episodes):
-            state, _ = self.env.reset()
+            if seed is not None and i == 0:
+                state, _ = self.env.reset(seed=seed + 10_000)
+            else:
+                state, _ = self.env.reset()
             done = False
             episode_reward = 0
             steps = 0
@@ -256,18 +379,29 @@ class DQNAgent:
         if not fast_testing:
             plt.close()
 
-        avg_steps = np.mean(total_steps)
-        avg_penalties = np.mean(total_penalties)
-        avg_reward = np.mean(total_rewards)
+        avg_steps = float(np.mean(total_steps))
+        avg_penalties = float(np.mean(total_penalties))
+        avg_reward = float(np.mean(total_rewards))
         completion_rate = float(np.mean(total_completions)) * 100
 
         print(f"\nRésultats après {test_episodes} épisodes de test :")
         print(f"  Average steps    : {avg_steps:.2f}")
         print(f"  Average penalties: {avg_penalties:.2f}")
-        print(f"  Average reward   : {avg_reward:.2f}")
+        print(f"  Average reward   : {avg_reward:.2f} (± {np.std(total_rewards):.2f})")
         print(f"  Completion rate  : {completion_rate:.1f}%")
 
-        return avg_steps, avg_penalties, avg_reward, completion_rate
+        return {
+            'reward': avg_reward,
+            'steps': avg_steps,
+            'penalties': avg_penalties,
+            'completion_rate': completion_rate,
+            'reward_std': float(np.std(total_rewards)),
+            'steps_std': float(np.std(total_steps)),
+            'episode_rewards': total_rewards,
+            'episode_steps': total_steps,
+            'episode_penalties': total_penalties,
+            'episode_completions': total_completions,
+        }
 
     def save(self, path="dqn_model.pth"):
         """Sauvegarde le modèle entraîné."""
@@ -280,7 +414,7 @@ class DQNAgent:
 
     def load(self, path="dqn_model.pth"):
         """Charge un modèle pré-entraîné."""
-        checkpoint = torch.load(path, map_location=self.device, weights_only=True) ##fix n°1
+        checkpoint = torch.load(path, map_location=self.device, weights_only=True)
         self.policy_net.load_state_dict(checkpoint['policy_net'])
         self.target_net.load_state_dict(checkpoint['target_net'])
         self.optimizer.load_state_dict(checkpoint['optimizer'])

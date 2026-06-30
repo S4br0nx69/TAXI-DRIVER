@@ -1,6 +1,24 @@
 """Agent SARSA (State-Action-Reward-State-Action) pour Taxi-v3/v4.
-Algorithme on-policy : la mise à jour utilise l'action réellement choisie au step suivant,
-contrairement au Q-Learning qui utilise le max."""
+Algorithme on-policy : la mise à jour utilise l'action réellement choisie au
+step suivant, contrairement au Q-Learning qui utilise le max.
+
+Corrections apportées (cf. revue de code) :
+- BUG CORRIGÉ : _train_nstep() ignorait totalement self.policy_type et
+  bootstrapait toujours en SARSA n-step standard (Q[s', a']), même quand
+  policy_type='expected' était injecté. Concrètement, sur les combinaisons
+  n_steps=3 du grid search, 'expected' et 'epsilon_greedy' produisaient un
+  comportement d'update strictement identique — seule la sélection d'action
+  (qui est déjà la même pour les deux) intervenait, donc le paramètre
+  policy_type n'avait aucun effet réel quand n_steps>1. Le bootstrap utilise
+  maintenant _expected_value() quand policy_type='expected', y compris en
+  n-step.
+- env_version par défaut passé à "v3".
+- Ajout d'un paramètre `seed` optionnel sur train()/test() (random, numpy,
+  RNG de l'environnement).
+- test() retourne un dict avec métriques agrégées + listes brutes par
+  épisode (permet de calculer un écart-type, impossible avant).
+- Avertissement si epsilon reste élevé en fin d'entraînement.
+"""
 
 import gymnasium as gym
 import numpy as np
@@ -16,7 +34,7 @@ except ImportError:
 
 
 class Sarsa:
-    def __init__(self, render_mode="rgb_array", env_version="v4"):
+    def __init__(self, render_mode="rgb_array", env_version="v3"):
         self.render_mode = render_mode
         try:
             self.env = gym.make(f"Taxi-{env_version}", render_mode=render_mode)
@@ -38,6 +56,7 @@ class Sarsa:
         self.policy_type = 'epsilon_greedy'  # 'epsilon_greedy', 'softmax', 'expected'
         self.temperature = 1.0               # pour softmax (Boltzmann)
         self.n_steps = 1                     # 1 = SARSA standard, n > 1 = n-step SARSA
+        self.lambda_ = 0.0                   # SARSA(λ) : 0=standard, 0<λ<1=traces d'éligibilité, 1≈MC
 
     def _choose_action(self, state):
         """Sélection selon la politique choisie."""
@@ -53,7 +72,13 @@ class Sarsa:
         return np.argmax(self.q_table[state])
 
     def _expected_value(self, state):
-        """Valeur espérée sous politique epsilon-greedy (pour Expected SARSA)."""
+        """Valeur espérée sous politique epsilon-greedy (pour Expected SARSA).
+
+        NB : cette formule suppose une politique de comportement
+        epsilon-greedy. Elle n'est pas définie pour policy_type='softmax' —
+        ce cas n'est de toute façon jamais combiné avec 'expected' dans le
+        grid search actuel.
+        """
         q_values = self.q_table[state]
         n_actions = self.env.action_space.n
         best_action = np.argmax(q_values)
@@ -61,17 +86,27 @@ class Sarsa:
         probs[best_action] += 1 - self.epsilon
         return np.dot(probs, q_values)
 
-    def train(self, train_episodes=25000, training_graph=False):
+    def train(self, train_episodes=25000, training_graph=False, seed=None):
         """Entraîne l'agent via SARSA. Supporte standard, Expected et n-step."""
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+
+        if self.lambda_ > 0:
+            return self._train_lambda(train_episodes, training_graph, seed=seed)
+
         if self.n_steps > 1:
-            return self._train_nstep(train_episodes, training_graph)
+            return self._train_nstep(train_episodes, training_graph, seed=seed)
 
         reward_per_episode = np.zeros(train_episodes)
         steps_per_episode = np.zeros(train_episodes)
         penalties_per_episode = np.zeros(train_episodes)
 
         for i in range(train_episodes):
-            state, _ = self.env.reset()
+            if seed is not None and i == 0:
+                state, _ = self.env.reset(seed=seed)
+            else:
+                state, _ = self.env.reset()
             action = self._choose_action(state)
             done = False
             total_reward = 0
@@ -119,20 +154,112 @@ class Sarsa:
         print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
         print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
 
+        if self.epsilon > 0.05:
+            print(f"  ATTENTION : epsilon final = {self.epsilon:.4f} (> 0.05). "
+                  f"epsilon_decay={self.epsilon_decay} est probablement trop lent "
+                  f"pour {train_episodes} épisodes.")
+
         if training_graph:
             self._plot_training(reward_per_episode, steps_per_episode)
 
         return reward_per_episode
 
-    def _train_nstep(self, train_episodes, training_graph):
-        """Entraînement n-step SARSA (algorithme tabulaire, Sutton & Barto ch.7)."""
+    def _train_lambda(self, train_episodes, training_graph, seed=None):
+        """SARSA(λ) avec traces d'éligibilité accumulantes (Sutton & Barto ch.12).
+        Généralise SARSA standard (λ=0) et Monte Carlo (λ→1).
+        Propage le signal de récompense sur tout le chemin parcouru en un épisode.
+        """
+        n_states  = self.env.observation_space.n
+        n_actions = self.env.action_space.n
+
+        reward_per_episode    = np.zeros(train_episodes)
+        steps_per_episode     = np.zeros(train_episodes)
+        penalties_per_episode = np.zeros(train_episodes)
+
+        for ep in range(train_episodes):
+            eligibility = np.zeros((n_states, n_actions))
+
+            if seed is not None and ep == 0:
+                state, _ = self.env.reset(seed=seed)
+            else:
+                state, _ = self.env.reset()
+            action = self._choose_action(state)
+
+            done         = False
+            total_reward = 0
+            steps        = 0
+            penalties    = 0
+
+            while not done:
+                next_state, reward, done, truncated, _ = self.env.step(action)
+                done = done or truncated
+
+                next_action = self._choose_action(next_state)
+
+                if self.policy_type == 'expected':
+                    next_value = self._expected_value(next_state)
+                else:
+                    next_value = self.q_table[next_state, next_action]
+
+                delta = reward + self.gamma * next_value - self.q_table[state, action]
+
+                eligibility[state, action] += 1.0
+                self.q_table += self.alpha * delta * eligibility
+                eligibility  *= self.gamma * self.lambda_
+
+                if reward == -10:
+                    penalties += 1
+                total_reward += reward
+                steps        += 1
+                state  = next_state
+                action = next_action
+
+            self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+
+            reward_per_episode[ep]    = total_reward
+            steps_per_episode[ep]     = steps
+            penalties_per_episode[ep] = penalties
+
+            if ep % 1000 == 0:
+                avg_reward = reward_per_episode[max(0, ep - 1000):ep + 1].mean() if ep > 0 else total_reward
+                print(f"Episode {ep:>6}/{train_episodes} | "
+                      f"ε={self.epsilon:.4f} | "
+                      f"Avg reward (last 1k): {avg_reward:.2f} | "
+                      f"Steps: {steps}")
+
+        print(f"\nTraining terminé — {train_episodes} épisodes (SARSA λ={self.lambda_})")
+        print(f"  Mean reward : {reward_per_episode.mean():.2f}")
+        print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
+        print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
+
+        if self.epsilon > 0.05:
+            print(f"  ATTENTION : epsilon final = {self.epsilon:.4f} (> 0.05). "
+                  f"epsilon_decay={self.epsilon_decay} est probablement trop lent "
+                  f"pour {train_episodes} épisodes.")
+
+        if training_graph:
+            self._plot_training(reward_per_episode, steps_per_episode)
+
+        return reward_per_episode
+
+    def _train_nstep(self, train_episodes, training_graph, seed=None):
+        """Entraînement n-step SARSA (algorithme tabulaire, Sutton & Barto ch.7).
+
+        FIX : le bootstrap final respecte maintenant policy_type. Avant, cette
+        méthode utilisait toujours Q[s_{tau+n}, a_{tau+n}] (SARSA n-step
+        standard), même si policy_type='expected' était demandé — ce qui
+        rendait ce paramètre sans effet dès que n_steps>1.
+        """
         n = self.n_steps
         reward_per_episode = np.zeros(train_episodes)
         steps_per_episode = np.zeros(train_episodes)
         penalties_per_episode = np.zeros(train_episodes)
 
         for ep in range(train_episodes):
-            state, _ = self.env.reset()
+            if seed is not None and ep == 0:
+                state, _ = self.env.reset(seed=seed)
+            else:
+                state, _ = self.env.reset()
             action = self._choose_action(state)
 
             states = [state]
@@ -167,7 +294,12 @@ class Sarsa:
                     G = sum(self.gamma ** (i - tau - 1) * rewards[i]
                             for i in range(tau + 1, min(tau + n, T) + 1))
                     if tau + n < T:
-                        G += self.gamma ** n * self.q_table[states[tau + n], actions[tau + n]]
+                        # FIX : bootstrap conforme à policy_type, y compris en n-step.
+                        if self.policy_type == 'expected':
+                            bootstrap = self._expected_value(states[tau + n])
+                        else:
+                            bootstrap = self.q_table[states[tau + n], actions[tau + n]]
+                        G += self.gamma ** n * bootstrap
 
                     s_tau, a_tau = states[tau], actions[tau]
                     self.q_table[s_tau, a_tau] += self.alpha * (G - self.q_table[s_tau, a_tau])
@@ -194,20 +326,32 @@ class Sarsa:
         print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
         print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
 
+        if self.epsilon > 0.05:
+            print(f"  ATTENTION : epsilon final = {self.epsilon:.4f} (> 0.05). "
+                  f"epsilon_decay={self.epsilon_decay} est probablement trop lent "
+                  f"pour {train_episodes} épisodes.")
+
         if training_graph:
             self._plot_training(reward_per_episode, steps_per_episode)
 
         return reward_per_episode
 
-    def test(self, test_episodes=1, timestamp=0.2, fast_testing=False, final_frame_pause=0):
-        """Évalue l'agent entraîné (greedy policy, ε=0)."""
+    def test(self, test_episodes=1, timestamp=0.2, fast_testing=False,
+             final_frame_pause=0, seed=None):
+        """Évalue l'agent entraîné (greedy policy, ε=0).
+
+        Retourne un dict avec métriques agrégées + listes brutes par épisode.
+        """
         total_rewards = []
         total_steps = []
         total_penalties = []
         total_completions = []
 
         for i in range(test_episodes):
-            state, _ = self.env.reset()
+            if seed is not None and i == 0:
+                state, _ = self.env.reset(seed=seed + 10_000)
+            else:
+                state, _ = self.env.reset()
             done = False
             episode_reward = 0
             steps = 0
@@ -241,18 +385,29 @@ class Sarsa:
         if not fast_testing:
             plt.close()
 
-        avg_steps = np.mean(total_steps)
-        avg_penalties = np.mean(total_penalties)
-        avg_reward = np.mean(total_rewards)
+        avg_steps = float(np.mean(total_steps))
+        avg_penalties = float(np.mean(total_penalties))
+        avg_reward = float(np.mean(total_rewards))
         completion_rate = float(np.mean(total_completions)) * 100
 
         print(f"\nRésultats après {test_episodes} épisodes de test :")
         print(f"  Average steps    : {avg_steps:.2f}")
         print(f"  Average penalties: {avg_penalties:.2f}")
-        print(f"  Average reward   : {avg_reward:.2f}")
+        print(f"  Average reward   : {avg_reward:.2f} (± {np.std(total_rewards):.2f})")
         print(f"  Completion rate  : {completion_rate:.1f}%")
 
-        return avg_steps, avg_penalties, avg_reward, completion_rate
+        return {
+            'reward': avg_reward,
+            'steps': avg_steps,
+            'penalties': avg_penalties,
+            'completion_rate': completion_rate,
+            'reward_std': float(np.std(total_rewards)),
+            'steps_std': float(np.std(total_steps)),
+            'episode_rewards': total_rewards,
+            'episode_steps': total_steps,
+            'episode_penalties': total_penalties,
+            'episode_completions': total_completions,
+        }
 
     def _render_frame(self, state, action, reward, episode_reward, episode):
         """Affiche une frame selon le render_mode."""

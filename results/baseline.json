@@ -1,17 +1,34 @@
 {
-  "timestamp": "2026-06-26T14:03:56.894877",
+  "timestamp": "2026-06-30T15:38:43.136245",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
   "models": {
     "q_learning": {
       "params": {
         "alpha": 0.1,
         "gamma": 0.6,
-        "epsilon_decay": 0.9995
+        "epsilon_decay": 0.9995,
+        "optimistic_init": 0.0,
+        "double_q": false
       },
       "metrics": {
-        "reward": -18.91,
-        "steps": 37.18,
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "reward": -14.797999999999996,
+        "reward_std": 4.26839017273101,
+        "steps": 33.474,
+        "steps_std": 3.83416779323319,
         "penalties": 0.0,
-        "completion_rate": 87.0
+        "penalties_std": 0.0,
+        "completion_rate": 88.93333333333334,
+        "completion_rate_std": 2.067741655902775
       }
     },
     "sarsa": {
@@ -21,13 +38,24 @@
         "epsilon_decay": 0.999,
         "policy_type": "epsilon_greedy",
         "n_steps": 1,
-        "temperature": 1.0
+        "temperature": 1.0,
+        "lambda_": 0.0
       },
       "metrics": {
-        "reward": -8.76,
-        "steps": 28.08,
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "reward": 4.256,
+        "reward_std": 4.27947130691008,
+        "steps": 16.422,
+        "steps_std": 3.8241018117548413,
         "penalties": 0.0,
-        "completion_rate": 92.0
+        "penalties_std": 0.0,
+        "completion_rate": 98.46666666666665,
+        "completion_rate_std": 2.1684607956387496
       }
     },
     "monte_carlo": {
@@ -35,13 +63,24 @@
         "alpha": 0.05,
         "gamma": 0.95,
         "epsilon_decay": 0.9997,
-        "visit_mode": "first_visit"
+        "visit_mode": "first_visit",
+        "exploring_starts": false
       },
       "metrics": {
-        "reward": -110.33,
-        "steps": 119.36,
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "reward": 5.639333333333333,
+        "reward_std": 1.4361544330452614,
+        "steps": 15.220666666666666,
+        "steps_std": 1.2950761453374944,
         "penalties": 0.0,
-        "completion_rate": 43.0
+        "penalties_std": 0.0,
+        "completion_rate": 99.33333333333333,
+        "completion_rate_std": 0.6798692684790346
       }
     },
     "dqn": {
@@ -51,13 +90,30 @@
         "lr": 0.001,
         "batch_size": 64,
         "target_update": 10,
-        "optimizer_type": "adam"
+        "optimizer_type": "adam",
+        "hidden_sizes": [
+          128,
+          64
+        ],
+        "double_dqn": false,
+        "dueling": false,
+        "tau": 0.0
       },
       "metrics": {
-        "reward": 7.54,
-        "steps": 13.46,
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "reward": 7.998333333333332,
+        "reward_std": 0.22841239507133201,
+        "steps": 13.001666666666667,
+        "steps_std": 0.22841239507133201,
         "penalties": 0.0,
-        "completion_rate": 100.0
+        "penalties_std": 0.0,
+        "completion_rate": 100.0,
+        "completion_rate_std": 0.0
       }
     }
   }

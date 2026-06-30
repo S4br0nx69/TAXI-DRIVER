@@ -10,10 +10,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -47.66,
-            "steps": 62.99,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -45.49,
+            "reward_std": 0.0,
+            "steps": 61.03,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 73.0
+            "penalties_std": 0.0,
+            "completion_rate": 74.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -23,10 +31,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -54.06,
-            "steps": 68.76,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -58.0,
+            "reward_std": 0.0,
+            "steps": 72.28,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 70.0
+            "penalties_std": 0.0,
+            "completion_rate": 68.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -36,10 +52,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": -8.4,
-            "steps": 27.72,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -20.53,
+            "reward_std": 0.0,
+            "steps": 38.59,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 92.0
+            "penalties_std": 0.0,
+            "completion_rate": 86.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -49,10 +73,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 2.01,
-            "steps": 18.36,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 6.48,
+            "reward_std": 0.0,
+            "steps": 14.31,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 97.0
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -62,10 +94,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -2.17,
-            "steps": 22.12,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 1.93,
+            "reward_std": 0.0,
+            "steps": 18.44,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 95.0
+            "penalties_std": 0.0,
+            "completion_rate": 97.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -75,10 +115,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 8.04,
-            "steps": 12.96,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -88,10 +136,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 8.51,
-            "steps": 12.49,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -101,10 +157,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": 7.92,
-            "steps": 13.08,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -114,10 +178,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 7.68,
-            "steps": 13.32,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -127,10 +199,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": -16.69,
-            "steps": 35.17,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -4.08,
+            "reward_std": 0.0,
+            "steps": 23.82,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 88.0
+            "penalties_std": 0.0,
+            "completion_rate": 94.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -140,10 +220,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": -6.4,
-            "steps": 25.93,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -12.44,
+            "reward_std": 0.0,
+            "steps": 31.34,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 93.0
+            "penalties_std": 0.0,
+            "completion_rate": 90.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -153,10 +241,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 7.69,
-            "steps": 13.31,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -166,10 +262,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 5.59,
-            "steps": 15.2,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 4.18,
+            "reward_std": 0.0,
+            "steps": 16.4,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 98.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -179,10 +283,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": 8.0,
-            "steps": 13.0,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -192,10 +304,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 7.65,
-            "steps": 13.35,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -205,10 +325,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 7.65,
-            "steps": 13.35,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -218,10 +346,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": 7.87,
-            "steps": 13.13,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -231,10 +367,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 8.09,
-            "steps": 12.91,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -244,10 +388,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 1.29,
-            "steps": 19.08,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 97.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -257,10 +409,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": 7.76,
-            "steps": 13.24,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -270,10 +430,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 8.28,
-            "steps": 12.72,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -283,10 +451,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 7.68,
-            "steps": 13.32,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -296,10 +472,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": 7.81,
-            "steps": 13.19,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -309,10 +493,18 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 7.45,
-            "steps": 13.55,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -322,10 +514,18 @@
             "epsilon_decay": 0.999
           },
           "metrics": {
-            "reward": 7.92,
-            "steps": 13.08,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -335,10 +535,18 @@
             "epsilon_decay": 0.9995
           },
           "metrics": {
-            "reward": 7.39,
-            "steps": 13.61,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -348,10 +556,92 @@
             "epsilon_decay": 0.9999
           },
           "metrics": {
-            "reward": 8.15,
-            "steps": 12.85,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        }
+      ],
+      "refined_top_candidates": [
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.8,
+            "epsilon_decay": 0.9999
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.4825,
+            "reward_std": 1.1107064193566185,
+            "steps": 13.465,
+            "steps_std": 1.0213838651555054,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.75,
+            "completion_rate_std": 0.4330127018922193
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.98,
+            "reward_std": 0.30520484924063723,
+            "steps": 13.02,
+            "steps_std": 0.30520484924063734,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.98,
+            "reward_std": 0.30520484924063723,
+            "steps": 13.02,
+            "steps_std": 0.30520484924063734,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         }
       ],
@@ -361,10 +651,21 @@
         "epsilon_decay": 0.999
       },
       "best_metrics": {
-        "reward": 8.51,
-        "steps": 12.49,
+        "n_seeds": 4,
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reward": 7.98,
+        "reward_std": 0.30520484924063723,
+        "steps": 13.02,
+        "steps_std": 0.30520484924063734,
         "penalties": 0.0,
-        "completion_rate": 100.0
+        "penalties_std": 0.0,
+        "completion_rate": 100.0,
+        "completion_rate_std": 0.0
       }
     },
     "sarsa": {
@@ -378,280 +679,432 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": -11.26,
-            "steps": 30.37,
-            "penalties": 0.0,
-            "completion_rate": 91.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.9,
-            "epsilon_decay": 0.999,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": -6.43,
-            "steps": 25.96,
-            "penalties": 0.0,
-            "completion_rate": 93.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.9,
-            "epsilon_decay": 0.999,
-            "policy_type": "expected",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 8.38,
-            "steps": 12.62,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.9,
-            "epsilon_decay": 0.999,
-            "policy_type": "expected",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 7.61,
-            "steps": 13.39,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.9,
-            "epsilon_decay": 0.9995,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 3.44,
-            "steps": 17.14,
-            "penalties": 0.0,
-            "completion_rate": 98.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.9,
-            "epsilon_decay": 0.9995,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 5.63,
-            "steps": 15.16,
-            "penalties": 0.0,
-            "completion_rate": 99.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.9,
-            "epsilon_decay": 0.9995,
-            "policy_type": "expected",
-            "n_steps": 1
-          },
-          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
             "reward": 8.25,
+            "reward_std": 0.0,
             "steps": 12.75,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
           "params": {
             "alpha": 0.1,
             "gamma": 0.9,
-            "epsilon_decay": 0.9995,
-            "policy_type": "expected",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 3.7,
-            "steps": 16.88,
-            "penalties": 0.0,
-            "completion_rate": 98.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 7.88,
-            "steps": 13.12,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
             "epsilon_decay": 0.999,
             "policy_type": "epsilon_greedy",
             "n_steps": 3
           },
           "metrics": {
-            "reward": 7.69,
-            "steps": 13.31,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.85,
+            "reward_std": 0.0,
+            "steps": 13.15,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
           "params": {
             "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "expected",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 8.09,
-            "steps": 12.91,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "expected",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 7.29,
-            "steps": 13.71,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9995,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 7.98,
-            "steps": 13.02,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9995,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 8.12,
-            "steps": 12.88,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9995,
-            "policy_type": "expected",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 8.06,
-            "steps": 12.94,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.1,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9995,
-            "policy_type": "expected",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 8.1,
-            "steps": 12.9,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.9,
-            "epsilon_decay": 0.999,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 7.46,
-            "steps": 13.54,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.9,
-            "epsilon_decay": 0.999,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 6.96,
-            "steps": 14.04,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
             "gamma": 0.9,
             "epsilon_decay": 0.999,
             "policy_type": "expected",
             "n_steps": 1
           },
           "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
             "reward": 8.24,
+            "reward_std": 0.0,
             "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.999,
+            "policy_type": "expected",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -5.29,
+            "reward_std": 0.0,
+            "steps": 25.03,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 94.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -19.44,
+            "reward_std": 0.0,
+            "steps": 37.71,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 87.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.48,
+            "reward_std": 0.0,
+            "steps": 13.52,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "policy_type": "expected",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 4.12,
+            "reward_std": 0.0,
+            "steps": 16.46,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 98.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "policy_type": "expected",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 1.48,
+            "reward_std": 0.0,
+            "steps": 18.89,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 97.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.08,
+            "reward_std": 0.0,
+            "steps": 12.92,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.23,
+            "reward_std": 0.0,
+            "steps": 12.77,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "expected",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "expected",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.06,
+            "reward_std": 0.0,
+            "steps": 12.94,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.03,
+            "reward_std": 0.0,
+            "steps": 12.97,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.41,
+            "reward_std": 0.0,
+            "steps": 12.59,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "policy_type": "expected",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "policy_type": "expected",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.17,
+            "reward_std": 0.0,
+            "steps": 12.83,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.9,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.24,
+            "reward_std": 0.0,
+            "steps": 13.76,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.9,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.38,
+            "reward_std": 0.0,
+            "steps": 13.62,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.9,
+            "epsilon_decay": 0.999,
+            "policy_type": "expected",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -663,10 +1116,18 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": 7.0,
-            "steps": 14.0,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 6.72,
+            "reward_std": 0.0,
+            "steps": 14.28,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -678,10 +1139,18 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": 5.6,
-            "steps": 15.19,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.96,
+            "reward_std": 0.0,
+            "steps": 13.04,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -693,100 +1162,156 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": 7.78,
-            "steps": 13.22,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.9,
-            "epsilon_decay": 0.9995,
-            "policy_type": "expected",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 5.7,
-            "steps": 15.09,
-            "penalties": 0.0,
-            "completion_rate": 99.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.9,
-            "epsilon_decay": 0.9995,
-            "policy_type": "expected",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 7.18,
-            "steps": 13.82,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 7.43,
-            "steps": 13.57,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "epsilon_greedy",
-            "n_steps": 3
-          },
-          "metrics": {
-            "reward": 7.89,
-            "steps": 13.11,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "expected",
-            "n_steps": 1
-          },
-          "metrics": {
-            "reward": 8.3,
-            "steps": 12.7,
-            "penalties": 0.0,
-            "completion_rate": 100.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.2,
-            "gamma": 0.99,
-            "epsilon_decay": 0.999,
-            "policy_type": "expected",
-            "n_steps": 3
-          },
-          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
             "reward": 7.69,
+            "reward_std": 0.0,
             "steps": 13.31,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "policy_type": "expected",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 5.94,
+            "reward_std": 0.0,
+            "steps": 14.85,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "policy_type": "expected",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.97,
+            "reward_std": 0.0,
+            "steps": 13.03,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.15,
+            "reward_std": 0.0,
+            "steps": 12.85,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.99,
+            "reward_std": 0.0,
+            "steps": 13.01,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "expected",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.99,
+            "epsilon_decay": 0.999,
+            "policy_type": "expected",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -798,10 +1323,18 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": 7.66,
-            "steps": 13.34,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.96,
+            "reward_std": 0.0,
+            "steps": 13.04,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -813,10 +1346,18 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": 7.31,
-            "steps": 13.69,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.41,
+            "reward_std": 0.0,
+            "steps": 12.59,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -828,10 +1369,18 @@
             "n_steps": 1
           },
           "metrics": {
-            "reward": 7.43,
-            "steps": 13.57,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -843,26 +1392,125 @@
             "n_steps": 3
           },
           "metrics": {
-            "reward": 7.41,
-            "steps": 13.59,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.15,
+            "reward_std": 0.0,
+            "steps": 12.85,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        }
+      ],
+      "refined_top_candidates": [
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.922499999999999,
+            "reward_std": 0.25518375732009285,
+            "steps": 13.0775,
+            "steps_std": 0.25518375732009296,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.2,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 3
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.6525,
+            "reward_std": 0.4080670900722086,
+            "steps": 13.3475,
+            "steps_std": 0.40806709007220854,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.999,
+            "policy_type": "epsilon_greedy",
+            "n_steps": 1
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 3.285,
+            "reward_std": 1.2576664899726002,
+            "steps": 17.295,
+            "steps_std": 1.1095156600967833,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 98.0,
+            "completion_rate_std": 0.7071067811865476
           }
         }
       ],
       "best_params": {
         "alpha": 0.1,
-        "gamma": 0.9,
-        "epsilon_decay": 0.999,
-        "policy_type": "expected",
-        "n_steps": 1,
+        "gamma": 0.99,
+        "epsilon_decay": 0.9995,
+        "policy_type": "epsilon_greedy",
+        "n_steps": 3,
         "temperature": 1.0
       },
       "best_metrics": {
-        "reward": 8.38,
-        "steps": 12.62,
+        "n_seeds": 4,
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reward": 7.922499999999999,
+        "reward_std": 0.25518375732009285,
+        "steps": 13.0775,
+        "steps_std": 0.25518375732009296,
         "penalties": 0.0,
-        "completion_rate": 100.0
+        "penalties_std": 0.0,
+        "completion_rate": 100.0,
+        "completion_rate_std": 0.0
       }
     },
     "monte_carlo": {
@@ -875,10 +1523,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -143.3,
-            "steps": 148.97,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -35.98,
+            "reward_std": 0.0,
+            "steps": 52.57,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 27.0
+            "penalties_std": 0.0,
+            "completion_rate": 79.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -889,10 +1545,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": 1.38,
-            "steps": 18.99,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -6.98,
+            "reward_std": 0.0,
+            "steps": 26.51,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 97.0
+            "penalties_std": 0.0,
+            "completion_rate": 93.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -903,10 +1567,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -104.14,
-            "steps": 113.8,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -2.71,
+            "reward_std": 0.0,
+            "steps": 22.66,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 46.0
+            "penalties_std": 0.0,
+            "completion_rate": 95.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -917,10 +1589,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -17.36,
-            "steps": 35.84,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -8.71,
+            "reward_std": 0.0,
+            "steps": 28.03,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 88.0
+            "penalties_std": 0.0,
+            "completion_rate": 92.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -931,10 +1611,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -20.84,
-            "steps": 38.9,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 3.47,
+            "reward_std": 0.0,
+            "steps": 17.11,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 86.0
+            "penalties_std": 0.0,
+            "completion_rate": 98.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -945,10 +1633,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -0.61,
-            "steps": 20.77,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -4.59,
+            "reward_std": 0.0,
+            "steps": 24.33,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 96.0
+            "penalties_std": 0.0,
+            "completion_rate": 94.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -959,150 +1655,238 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -168.47,
-            "steps": 171.62,
-            "penalties": 0.0,
-            "completion_rate": 15.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.95,
-            "epsilon_decay": 0.9995,
-            "visit_mode": "every_visit"
-          },
-          "metrics": {
-            "reward": -6.89,
-            "steps": 26.42,
-            "penalties": 0.0,
-            "completion_rate": 93.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.95,
-            "epsilon_decay": 0.9997,
-            "visit_mode": "first_visit"
-          },
-          "metrics": {
-            "reward": -87.51,
-            "steps": 98.85,
-            "penalties": 0.0,
-            "completion_rate": 54.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.95,
-            "epsilon_decay": 0.9997,
-            "visit_mode": "every_visit"
-          },
-          "metrics": {
-            "reward": -2.77,
-            "steps": 22.72,
-            "penalties": 0.0,
-            "completion_rate": 95.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.95,
-            "epsilon_decay": 0.9999,
-            "visit_mode": "first_visit"
-          },
-          "metrics": {
-            "reward": -0.44,
-            "steps": 20.6,
-            "penalties": 0.0,
-            "completion_rate": 96.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.95,
-            "epsilon_decay": 0.9999,
-            "visit_mode": "every_visit"
-          },
-          "metrics": {
-            "reward": 1.64,
-            "steps": 18.73,
-            "penalties": 0.0,
-            "completion_rate": 97.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9995,
-            "visit_mode": "first_visit"
-          },
-          "metrics": {
-            "reward": -514.16,
-            "steps": 126.35,
-            "penalties": 44.0,
-            "completion_rate": 39.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9995,
-            "visit_mode": "every_visit"
-          },
-          "metrics": {
-            "reward": 4.74,
-            "steps": 16.05,
-            "penalties": 0.0,
-            "completion_rate": 99.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9997,
-            "visit_mode": "first_visit"
-          },
-          "metrics": {
-            "reward": -157.46,
-            "steps": 64.79,
-            "penalties": 12.0,
-            "completion_rate": 73.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9997,
-            "visit_mode": "every_visit"
-          },
-          "metrics": {
-            "reward": 0.56,
-            "steps": 19.81,
-            "penalties": 0.0,
-            "completion_rate": 97.0
-          }
-        },
-        {
-          "params": {
-            "alpha": 0.05,
-            "gamma": 0.99,
-            "epsilon_decay": 0.9999,
-            "visit_mode": "first_visit"
-          },
-          "metrics": {
-            "reward": -29.48,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -11.48,
+            "reward_std": 0.0,
             "steps": 30.59,
-            "penalties": 2.0,
-            "completion_rate": 91.0
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 91.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9995,
+            "visit_mode": "every_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 4.37,
+            "reward_std": 0.0,
+            "steps": 16.42,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9997,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 1.65,
+            "reward_std": 0.0,
+            "steps": 18.72,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 97.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9997,
+            "visit_mode": "every_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 1.53,
+            "reward_std": 0.0,
+            "steps": 18.84,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 97.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9999,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -0.71,
+            "reward_std": 0.0,
+            "steps": 20.87,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 96.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9999,
+            "visit_mode": "every_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 1.27,
+            "reward_std": 0.0,
+            "steps": 19.1,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 97.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -7.44,
+            "reward_std": 0.0,
+            "steps": 26.97,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 93.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9995,
+            "visit_mode": "every_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 3.15,
+            "reward_std": 0.0,
+            "steps": 17.43,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 98.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9997,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -11.71,
+            "reward_std": 0.0,
+            "steps": 30.82,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 91.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9997,
+            "visit_mode": "every_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -0.44,
+            "reward_std": 0.0,
+            "steps": 20.81,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 97.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.05,
+            "gamma": 0.99,
+            "epsilon_decay": 0.9999,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 6.05,
+            "reward_std": 0.0,
+            "steps": 14.74,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1113,10 +1897,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -12.95,
-            "steps": 31.85,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -4.82,
+            "reward_std": 0.0,
+            "steps": 24.56,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 90.0
+            "penalties_std": 0.0,
+            "completion_rate": 94.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1127,10 +1919,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -93.5,
-            "steps": 104.21,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.65,
+            "reward_std": 0.0,
+            "steps": 13.35,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 51.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1141,10 +1941,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": 3.71,
-            "steps": 17.08,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 5.48,
+            "reward_std": 0.0,
+            "steps": 15.31,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1155,10 +1963,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -35.58,
-            "steps": 52.17,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 4.68,
+            "reward_std": 0.0,
+            "steps": 16.11,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 79.0
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1169,10 +1985,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": 5.13,
-            "steps": 15.66,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 5.68,
+            "reward_std": 0.0,
+            "steps": 15.11,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1183,10 +2007,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -114.36,
-            "steps": 122.97,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -35.69,
+            "reward_std": 0.0,
+            "steps": 52.28,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 41.0
+            "penalties_std": 0.0,
+            "completion_rate": 79.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1197,10 +2029,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -31.8,
-            "steps": 48.81,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -60.76,
+            "reward_std": 0.0,
+            "steps": 74.83,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 81.0
+            "penalties_std": 0.0,
+            "completion_rate": 67.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1211,10 +2051,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -34.22,
-            "steps": 51.02,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 6.21,
+            "reward_std": 0.0,
+            "steps": 14.79,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 80.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1225,10 +2073,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": 7.4,
-            "steps": 13.6,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.69,
+            "reward_std": 0.0,
+            "steps": 13.31,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1239,10 +2095,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -17.59,
-            "steps": 36.07,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 7.8,
+            "reward_std": 0.0,
+            "steps": 13.2,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 88.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1253,10 +2117,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": 0.83,
-            "steps": 19.54,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 6.07,
+            "reward_std": 0.0,
+            "steps": 14.72,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 97.0
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1267,10 +2139,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -77.06,
-            "steps": 89.45,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -4.45,
+            "reward_std": 0.0,
+            "steps": 24.19,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 59.0
+            "penalties_std": 0.0,
+            "completion_rate": 94.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1281,10 +2161,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -29.34,
-            "steps": 46.56,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -44.72,
+            "reward_std": 0.0,
+            "steps": 60.47,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 82.0
+            "penalties_std": 0.0,
+            "completion_rate": 75.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1295,10 +2183,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -305.47,
-            "steps": 149.14,
-            "penalties": 18.0,
-            "completion_rate": 27.0
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 4.47,
+            "reward_std": 0.0,
+            "steps": 16.32,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1309,10 +2205,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": 7.64,
-            "steps": 13.36,
-            "penalties": 0.0,
-            "completion_rate": 100.0
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -116.21,
+            "reward_std": 0.0,
+            "steps": 60.59,
+            "steps_std": 0.0,
+            "penalties": 7.93,
+            "penalties_std": 0.0,
+            "completion_rate": 75.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1323,10 +2227,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -319.9,
-            "steps": 97.54,
-            "penalties": 25.99,
-            "completion_rate": 55.00000000000001
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 3.48,
+            "reward_std": 0.0,
+            "steps": 17.1,
+            "steps_std": 0.0,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 98.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1337,10 +2249,18 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -44.69,
-            "steps": 60.44,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -46.52,
+            "reward_std": 0.0,
+            "steps": 62.06,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 75.0
+            "penalties_std": 0.0,
+            "completion_rate": 74.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1351,10 +2271,18 @@
             "visit_mode": "first_visit"
           },
           "metrics": {
-            "reward": -279.98,
-            "steps": 126.89,
-            "penalties": 17.92,
-            "completion_rate": 39.0
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -48.1,
+            "reward_std": 0.0,
+            "steps": 47.32,
+            "steps_std": 0.0,
+            "penalties": 2.0,
+            "penalties_std": 0.0,
+            "completion_rate": 82.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1365,24 +2293,120 @@
             "visit_mode": "every_visit"
           },
           "metrics": {
-            "reward": -142.2,
-            "steps": 99.54,
-            "penalties": 6.0,
-            "completion_rate": 54.0
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": -56.88,
+            "reward_std": 0.0,
+            "steps": 38.94,
+            "steps_std": 0.0,
+            "penalties": 4.0,
+            "penalties_std": 0.0,
+            "completion_rate": 86.0,
+            "completion_rate_std": 0.0
+          }
+        }
+      ],
+      "refined_top_candidates": [
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9997,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.3775,
+            "reward_std": 0.5416352554994919,
+            "steps": 13.622499999999999,
+            "steps_std": 0.541635255499492,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.95,
+            "epsilon_decay": 0.9995,
+            "visit_mode": "every_visit"
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 6.4325,
+            "reward_std": 0.9232111080354264,
+            "steps": 14.514999999999999,
+            "steps_std": 0.8339514374350584,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.75,
+            "completion_rate_std": 0.4330127018922193
+          }
+        },
+        {
+          "params": {
+            "alpha": 0.1,
+            "gamma": 0.9,
+            "epsilon_decay": 0.9995,
+            "visit_mode": "first_visit"
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": -1.2575000000000003,
+            "reward_std": 9.74210802393404,
+            "steps": 21.417499999999997,
+            "steps_std": 8.746371747759182,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 96.0,
+            "completion_rate_std": 4.743416490252569
           }
         }
       ],
       "best_params": {
         "alpha": 0.1,
-        "gamma": 0.99,
-        "epsilon_decay": 0.9995,
-        "visit_mode": "every_visit"
+        "gamma": 0.95,
+        "epsilon_decay": 0.9997,
+        "visit_mode": "first_visit"
       },
       "best_metrics": {
-        "reward": 7.64,
-        "steps": 13.36,
+        "n_seeds": 4,
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reward": 7.3775,
+        "reward_std": 0.5416352554994919,
+        "steps": 13.622499999999999,
+        "steps_std": 0.541635255499492,
         "penalties": 0.0,
-        "completion_rate": 100.0
+        "penalties_std": 0.0,
+        "completion_rate": 100.0,
+        "completion_rate_std": 0.0
       }
     },
     "dqn": {
@@ -1395,10 +2419,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 7.84,
-            "steps": 13.16,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1409,10 +2441,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 8.14,
-            "steps": 12.86,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1423,10 +2463,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 6.14,
-            "steps": 14.65,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1437,10 +2485,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.8,
-            "steps": 13.2,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1451,10 +2507,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 8.6,
-            "steps": 12.4,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1465,10 +2529,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.78,
-            "steps": 13.22,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1479,10 +2551,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 7.63,
-            "steps": 13.37,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1493,10 +2573,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.99,
-            "steps": 13.01,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1507,10 +2595,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 8.27,
-            "steps": 12.73,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1521,10 +2617,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.92,
-            "steps": 13.08,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1535,10 +2639,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 8.12,
-            "steps": 12.88,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1549,10 +2661,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 5.76,
-            "steps": 15.03,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1563,10 +2683,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 6.62,
-            "steps": 14.17,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 99.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1577,10 +2705,18 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.86,
-            "steps": 13.14,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1591,10 +2727,18 @@
             "optimizer_type": "adam"
           },
           "metrics": {
-            "reward": 8.02,
-            "steps": 12.98,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         },
         {
@@ -1605,15 +2749,100 @@
             "optimizer_type": "rmsprop"
           },
           "metrics": {
-            "reward": 7.92,
-            "steps": 13.08,
+            "n_seeds": 1,
+            "seeds": [
+              0
+            ],
+            "reward": 8.24,
+            "reward_std": 0.0,
+            "steps": 12.76,
+            "steps_std": 0.0,
             "penalties": 0.0,
-            "completion_rate": 100.0
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        }
+      ],
+      "refined_top_candidates": [
+        {
+          "params": {
+            "lr": 0.0005,
+            "gamma": 0.95,
+            "batch_size": 32,
+            "optimizer_type": "adam"
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.98,
+            "reward_std": 0.30520484924063723,
+            "steps": 13.02,
+            "steps_std": 0.30520484924063734,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
+          }
+        },
+        {
+          "params": {
+            "lr": 0.0005,
+            "gamma": 0.95,
+            "batch_size": 32,
+            "optimizer_type": "rmsprop"
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.540000000000001,
+            "reward_std": 0.667195623486845,
+            "steps": 13.4075,
+            "steps_std": 0.5849091809845357,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 99.75,
+            "completion_rate_std": 0.4330127018922193
+          }
+        },
+        {
+          "params": {
+            "lr": 0.0005,
+            "gamma": 0.95,
+            "batch_size": 64,
+            "optimizer_type": "adam"
+          },
+          "metrics": {
+            "n_seeds": 4,
+            "seeds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "reward": 7.98,
+            "reward_std": 0.30520484924063723,
+            "steps": 13.02,
+            "steps_std": 0.30520484924063734,
+            "penalties": 0.0,
+            "penalties_std": 0.0,
+            "completion_rate": 100.0,
+            "completion_rate_std": 0.0
           }
         }
       ],
       "best_params": {
-        "gamma": 0.99,
+        "gamma": 0.95,
         "epsilon_decay": 0.9995,
         "lr": 0.0005,
         "batch_size": 32,
@@ -1621,10 +2850,21 @@
         "optimizer_type": "adam"
       },
       "best_metrics": {
-        "reward": 8.6,
-        "steps": 12.4,
+        "n_seeds": 4,
+        "seeds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reward": 7.98,
+        "reward_std": 0.30520484924063723,
+        "steps": 13.02,
+        "steps_std": 0.30520484924063734,
         "penalties": 0.0,
-        "completion_rate": 100.0
+        "penalties_std": 0.0,
+        "completion_rate": 100.0,
+        "completion_rate_std": 0.0
       }
     }
   }

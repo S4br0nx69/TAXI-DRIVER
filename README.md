@@ -11,6 +11,7 @@
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.9-11557C?style=for-the-badge)](https://matplotlib.org)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![Portainer](https://img.shields.io/badge/Portainer-CE-13BEF9?style=for-the-badge&logo=portainer&logoColor=white)](https://portainer.io)
+[![Azure](https://img.shields.io/badge/Azure-Container_Apps-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/products/container-apps)
 [![CI](https://github.com/S4br0nx69/TAXI-DRIVER/actions/workflows/ci.yml/badge.svg)](https://github.com/S4br0nx69/TAXI-DRIVER/actions/workflows/ci.yml)
 
 <br>
@@ -27,6 +28,7 @@ Résolution de l'environnement **Taxi-v3** par apprentissage par renforcement mo
 [Benchmark](#-benchmark) •
 [Tests & CI/CD](#-tests--cicd) •
 [MLOps](#-mlops) •
+[Déploiement Azure](#-déploiement-azure) •
 [Sécurité](#-sécurité) •
 [Architecture](#-architecture)
 
@@ -389,6 +391,51 @@ curl -X POST http://localhost:8000/predict \
 
 ---
 
+## ☁️ Déploiement Azure
+
+Le projet est déployable sur **Azure Container Apps** (site + UI MLflow), en HTTPS et **scale-to-zero** (coût quasi nul au repos). Tout est scripté dans [`azure/`](azure/) — détails dans [`azure/README.md`](azure/README.md).
+
+| Service | Rôle | Port |
+|---------|------|------|
+| `taxi-serve` | API d'inférence FastAPI + interface web de benchmark | 8000 |
+| `taxi-mlflow` | UI MLflow (snapshot des runs `mlruns/`) | 5000 |
+
+```bash
+az login
+./azure/deploy.sh                # build local Docker + push ACR + déploie 2 apps
+```
+
+> [!NOTE]
+> Le script build les images **en local** puis les pousse vers l'ACR : les *ACR Tasks* (build cloud) sont bloqués sur les abonnements gratuits/sponsorisés. Les modèles (`models/`) et le snapshot `mlruns/` sont **embarqués dans les images** (l'API de serving reste sans torch).
+
+<details>
+<summary><b>⚙️ Paramétrer & gérer</b></summary>
+
+```bash
+# Personnaliser (région, groupe, modèle servi par défaut...)
+LOCATION=westeurope SERVE_ALGO=sarsa ./azure/deploy.sh
+
+# Redéployer après un réentraînement (réutilise le même registre)
+ACR_NAME=<mon-acr> ./azure/deploy.sh
+
+# Tout supprimer (stopper les coûts)
+az group delete -n taxi-driver-rg --yes --no-wait
+```
+
+| Variable | Défaut | Rôle |
+|----------|--------|------|
+| `LOCATION` | `francecentral` | région Azure |
+| `RESOURCE_GROUP` | `taxi-driver-rg` | groupe de ressources |
+| `ACR_NAME` | `taxidriveracr<random>` | registre (globalement unique) |
+| `SERVE_ALGO` | `auto` | modèle servi par défaut (`auto`/`sarsa`/`qlearning`/`dqn`) |
+
+</details>
+
+> [!TIP]
+> Le flux : providers Azure → Azure Container Registry → build/push des images → environnement Container Apps → 2 apps avec ingress public. À la fin, le script affiche les URLs `https://…azurecontainerapps.io` des deux services.
+
+---
+
 ## 🔒 Sécurité
 
 <details>
@@ -436,7 +483,13 @@ TAXI-DRIVER/
 │   ├── registry.py            # Model registry + versioning + promotion
 │   ├── pipeline.py            # Orchestration train -> register -> select
 │   └── serve/
-│       └── app.py             # API d'inférence FastAPI
+│       ├── app.py             # API d'inférence FastAPI
+│       └── static/            # Interface web (benchmark + prédictions)
+├── azure/                     # Déploiement Azure Container Apps
+│   ├── Dockerfile.serve       # Image site (modèles embarqués)
+│   ├── Dockerfile.mlflow      # Image MLflow UI (snapshot mlruns/)
+│   ├── deploy.sh              # Déploiement (build local + push ACR)
+│   └── README.md
 ├── bruteforce.py              # Baseline random agent
 ├── grid_search.py             # Optimisation des hyperparamètres
 ├── utils.py                   # Validation sécurisée des entrées
@@ -482,6 +535,7 @@ TAXI-DRIVER/
 | Supervision | Portainer CE | `latest` |
 | Suivi d'expériences | MLflow | `2.19.0` |
 | Serving | FastAPI / Uvicorn | `latest` |
+| Déploiement cloud | Azure Container Apps | — |
 | Tests | pytest | `9.0.3` |
 | CI/CD | GitHub Actions | — |
 

@@ -10,3 +10,6 @@ mlruns/
 mlartifacts/
 models/
 *.log
+
+# Azure — contexte de build temporaire
+azure/.build/

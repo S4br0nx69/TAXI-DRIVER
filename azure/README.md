@@ -15,7 +15,7 @@ dans les images (le `.dockerignore` du dépôt les exclut du build local, donc
 ## Prérequis
 
 - Azure CLI connecté : `az login`
-- Un abonnement Azure actif (les crédits étudiants suffisent — Container Apps a
+- Un abonnement Azure actif (les crédits étudiants suffisent. Container Apps a
   une offre gratuite mensuelle et scale-to-zero).
 
 ## Déployer

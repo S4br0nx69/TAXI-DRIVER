@@ -393,7 +393,7 @@ curl -X POST http://localhost:8000/predict \
 
 ## ☁️ Déploiement Azure
 
-Le projet est déployable sur **Azure Container Apps** (site + UI MLflow), en HTTPS et **scale-to-zero** (coût quasi nul au repos). Tout est scripté dans [`azure/`](azure/) — détails dans [`azure/README.md`](azure/README.md).
+Le projet est déployable sur **Azure Container Apps** (site + UI MLflow), en HTTPS et **scale-to-zero** (coût quasi nul au repos). Tout est scripté dans [`azure/`](azure/) détails dans [`azure/README.md`](azure/README.md).
 
 | Service | Rôle | Port |
 |---------|------|------|

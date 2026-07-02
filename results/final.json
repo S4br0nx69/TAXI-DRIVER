@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-30T11:49:08.943048",
+  "timestamp": "2026-07-01T08:09:34.511883",
   "seeds": [
     0,
     1,
@@ -10,7 +10,9 @@
       "params": {
         "alpha": 0.05,
         "gamma": 0.99,
-        "epsilon_decay": 0.999
+        "epsilon_decay": 0.999,
+        "optimistic_init": 0.0,
+        "double_q": false
       },
       "metrics": {
         "n_seeds": 3,
@@ -19,10 +21,10 @@
           1,
           2
         ],
-        "reward": 8.113333333333333,
-        "reward_std": 0.23041026211713958,
-        "steps": 12.886666666666665,
-        "steps_std": 0.23041026211714,
+        "reward": 7.972,
+        "reward_std": 0.13414420101766059,
+        "steps": 13.028,
+        "steps_std": 0.1341442010176606,
         "penalties": 0.0,
         "penalties_std": 0.0,
         "completion_rate": 100.0,
@@ -33,10 +35,11 @@
       "params": {
         "alpha": 0.1,
         "gamma": 0.99,
-        "epsilon_decay": 0.9995,
-        "policy_type": "epsilon_greedy",
-        "n_steps": 3,
-        "temperature": 1.0
+        "epsilon_decay": 0.999,
+        "policy_type": "expected",
+        "n_steps": 1,
+        "temperature": 1.0,
+        "lambda_": 0.0
       },
       "metrics": {
         "n_seeds": 3,
@@ -45,10 +48,10 @@
           1,
           2
         ],
-        "reward": 8.213333333333333,
-        "reward_std": 0.2509094568874506,
-        "steps": 12.786666666666667,
-        "steps_std": 0.2509094568874506,
+        "reward": 7.972,
+        "reward_std": 0.13414420101766059,
+        "steps": 13.028,
+        "steps_std": 0.1341442010176606,
         "penalties": 0.0,
         "penalties_std": 0.0,
         "completion_rate": 100.0,
@@ -60,7 +63,8 @@
         "alpha": 0.1,
         "gamma": 0.95,
         "epsilon_decay": 0.9997,
-        "visit_mode": "first_visit"
+        "visit_mode": "first_visit",
+        "exploring_starts": false
       },
       "metrics": {
         "n_seeds": 3,
@@ -69,10 +73,10 @@
           1,
           2
         ],
-        "reward": 7.6066666666666665,
-        "reward_std": 0.2329997615640172,
-        "steps": 13.393333333333333,
-        "steps_std": 0.23299976156401692,
+        "reward": 7.37,
+        "reward_std": 0.11582745788456221,
+        "steps": 13.63,
+        "steps_std": 0.1158274578845618,
         "penalties": 0.0,
         "penalties_std": 0.0,
         "completion_rate": 100.0,
@@ -95,10 +99,10 @@
           1,
           2
         ],
-        "reward": 8.113333333333333,
-        "reward_std": 0.23041026211713958,
-        "steps": 12.886666666666665,
-        "steps_std": 0.23041026211714,
+        "reward": 7.998333333333332,
+        "reward_std": 0.22841239507133201,
+        "steps": 13.001666666666667,
+        "steps_std": 0.22841239507133201,
         "penalties": 0.0,
         "penalties_std": 0.0,
         "completion_rate": 100.0,

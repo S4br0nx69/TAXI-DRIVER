@@ -81,31 +81,51 @@ docker push "$ACR_SERVER/$MLFLOW_APP:latest"
 step "Environnement Container Apps : $ENV_NAME"
 az containerapp env create -g "$RESOURCE_GROUP" -n "$ENV_NAME" -l "$LOCATION" -o none
 
-# --- 5. Déploiement des deux applications ------------------------------------
-step "Déploiement du serving ($SERVE_APP) — ingress public port 8000"
-az containerapp create -g "$RESOURCE_GROUP" -n "$SERVE_APP" \
-  --environment "$ENV_NAME" \
-  --image "$ACR_SERVER/$SERVE_APP:latest" \
-  --registry-server "$ACR_SERVER" \
-  --registry-username "$ACR_USER" \
-  --registry-password "$ACR_PASS" \
-  --target-port 8000 --ingress external \
-  --min-replicas 0 --max-replicas 2 \
-  --cpu 0.5 --memory 1.0Gi \
-  --env-vars "TAXI_SERVE_ALGORITHM=$SERVE_ALGO" \
-  -o none
+# --- 5. Déploiement des deux applications (create-or-update) ------------------
+# Suffixe de révision unique : force Container Apps à retirer le nouveau :latest
+# (sinon, tag identique => pas de nouvelle révision, ancienne image conservée).
+REV_SUFFIX="r$(date +%Y%m%d%H%M%S)"
+app_exists(){ az containerapp show -g "$RESOURCE_GROUP" -n "$1" -o none 2>/dev/null; }
 
-step "Déploiement de MLflow UI ($MLFLOW_APP) — ingress public port 5000"
-az containerapp create -g "$RESOURCE_GROUP" -n "$MLFLOW_APP" \
-  --environment "$ENV_NAME" \
-  --image "$ACR_SERVER/$MLFLOW_APP:latest" \
-  --registry-server "$ACR_SERVER" \
-  --registry-username "$ACR_USER" \
-  --registry-password "$ACR_PASS" \
-  --target-port 5000 --ingress external \
-  --min-replicas 0 --max-replicas 1 \
-  --cpu 0.5 --memory 1.0Gi \
-  -o none
+if app_exists "$SERVE_APP"; then
+  step "Mise à jour du serving ($SERVE_APP) — révision $REV_SUFFIX"
+  az containerapp update -g "$RESOURCE_GROUP" -n "$SERVE_APP" \
+    --image "$ACR_SERVER/$SERVE_APP:latest" \
+    --revision-suffix "$REV_SUFFIX" \
+    --set-env-vars "TAXI_SERVE_ALGORITHM=$SERVE_ALGO" -o none
+else
+  step "Déploiement du serving ($SERVE_APP) — ingress public port 8000"
+  az containerapp create -g "$RESOURCE_GROUP" -n "$SERVE_APP" \
+    --environment "$ENV_NAME" \
+    --image "$ACR_SERVER/$SERVE_APP:latest" \
+    --registry-server "$ACR_SERVER" \
+    --registry-username "$ACR_USER" \
+    --registry-password "$ACR_PASS" \
+    --target-port 8000 --ingress external \
+    --min-replicas 0 --max-replicas 2 \
+    --cpu 0.5 --memory 1.0Gi \
+    --env-vars "TAXI_SERVE_ALGORITHM=$SERVE_ALGO" \
+    -o none
+fi
+
+if app_exists "$MLFLOW_APP"; then
+  step "Mise à jour de MLflow UI ($MLFLOW_APP) — révision $REV_SUFFIX"
+  az containerapp update -g "$RESOURCE_GROUP" -n "$MLFLOW_APP" \
+    --image "$ACR_SERVER/$MLFLOW_APP:latest" \
+    --revision-suffix "$REV_SUFFIX" -o none
+else
+  step "Déploiement de MLflow UI ($MLFLOW_APP) — ingress public port 5000"
+  az containerapp create -g "$RESOURCE_GROUP" -n "$MLFLOW_APP" \
+    --environment "$ENV_NAME" \
+    --image "$ACR_SERVER/$MLFLOW_APP:latest" \
+    --registry-server "$ACR_SERVER" \
+    --registry-username "$ACR_USER" \
+    --registry-password "$ACR_PASS" \
+    --target-port 5000 --ingress external \
+    --min-replicas 0 --max-replicas 1 \
+    --cpu 0.5 --memory 1.0Gi \
+    -o none
+fi
 
 # --- 6. Récapitulatif --------------------------------------------------------
 SERVE_URL=$(az containerapp show -g "$RESOURCE_GROUP" -n "$SERVE_APP" \

@@ -145,6 +145,11 @@
   .bench-field>label{font-size:12px;color:var(--faint);display:block;margin-bottom:8px}
   .bench-ctrls{margin-left:auto;display:flex;gap:9px;align-items:flex-end}
   .btn.sm{padding:7px 12px;font-size:12px}
+  .bench-field input.num-in{width:88px;padding:8px 10px;border-radius:7px;background:var(--surface-2);
+        border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px}
+  .bench-field input.num-in:focus{outline:none;border-color:var(--accent)}
+  .bench-field input.num-in:disabled{opacity:.4}
+  .seg.txt button{padding:9px 12px;font-family:var(--sans);min-width:0}
   .bench-progress{display:flex;align-items:center;gap:12px;padding:14px 20px;border-top:1px solid var(--border);
         font-size:13px;color:var(--muted)}
   .bar{flex:1;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden}
@@ -378,7 +383,19 @@
     <section class="card">
       <div class="cb bench-setup">
         <div class="bench-field"><label>Scénarios</label><div class="seg" id="benchN"></div></div>
-        <div class="bench-field"><label>Modèles évalués</label><div class="chips" id="benchModels"></div></div>
+        <div class="bench-field"><label>Max steps / épisode</label><div class="seg" id="benchMaxSteps"></div></div>
+        <div class="bench-field"><label>Distribution des départs</label><div class="seg txt" id="benchDist"></div></div>
+        <div class="bench-field"><label>Seed</label>
+          <div style="display:flex;gap:7px;align-items:center">
+            <div class="seg txt" id="benchSeedMode">
+              <button data-val="random" class="on">Aléatoire</button>
+              <button data-val="fixed">Fixe</button>
+            </div>
+            <input id="benchSeedInput" class="num-in" type="number" min="0" step="1" value="42" disabled
+                   title="Seed reproductible — même seed = mêmes scénarios">
+          </div>
+        </div>
+        <div class="bench-field" style="flex-basis:100%"><label>Modèles évalués</label><div class="chips" id="benchModels"></div></div>
         <div class="bench-ctrls">
           <button class="btn primary" id="benchRunBtn">
             <svg class="ic" viewBox="0 0 24 24"><polygon class="fill" points="6 3 20 12 6 21 6 3"/></svg>Lancer le benchmark</button>
@@ -707,15 +724,34 @@ function setVsRunBtn(on){
 }
 
 /* ---------- mode benchmark ---------- */
-let BENCH=null, benchRunning=false, benchN=200;
+let BENCH=null, benchRunning=false, benchN=200, benchMaxSteps=100,
+    benchDist="uniform", benchSeedMode="random", benchSeed=42;
 const benchSel=new Set(), policyCache={};
 const ALGO_COLORS={qlearning:"#7e87e8",sarsa:"#84c0a0",dqn:"#e0a951",montecarlo:"#d98a8a"};
 const colorFor=a=>ALGO_COLORS[a]||"#8aa6d0";
 const microyield=()=>new Promise(z=>setTimeout(z,0));
 const pad=n=>String(n).padStart(2,"0");
+const manhattan=(r1,c1,r2,c2)=>Math.abs(r1-r2)+Math.abs(c1-c2);
+const DIST_LABEL={uniform:"Uniforme (passager hors taxi)",
+  hard:"Difficile (trajets longs)",onboard:"Passager déjà à bord"};
 
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
   t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* génère N états de départ selon la distribution choisie (déterministe via rnd) */
+function makeScenarios(N,rnd,dist){
+  const gen={
+    uniform:()=>({r:(rnd()*5)|0,c:(rnd()*5)|0,p:(rnd()*4)|0,d:(rnd()*4)|0}),
+    onboard:()=>({r:(rnd()*5)|0,c:(rnd()*5)|0,p:4,d:(rnd()*4)|0}),
+    hard:()=>{ let s,tries=0;
+      do{ const p=(rnd()*4)|0; let d=(rnd()*4)|0; if(d===p)d=(d+1)&3;
+        s={r:(rnd()*5)|0,c:(rnd()*5)|0,p,d}; tries++;
+      }while(tries<24 && manhattan(s.r,s.c,LOCS[s.p][0],LOCS[s.p][1])<3);
+      return s; }
+  };
+  const f=gen[dist]||gen.uniform;
+  return Array.from({length:N},f);
+}
 
 async function getPolicy(algo){
   if(policyCache[algo])return policyCache[algo];
@@ -732,16 +768,25 @@ function rolloutLocal(pol,s0,maxSteps){
   return{done,steps,reward,pen};
 }
 
+/* fabrique un segment de boutons "presets" (valeurs numériques ou textuelles) */
+function buildSegPresets(elId,opts,getVal,setVal){
+  const seg=$(elId); if(!seg||seg.dataset.built)return;
+  opts.forEach(o=>{ const b=document.createElement("button");
+    b.textContent=o.label; b.dataset.val=o.val;
+    if(o.val===getVal())b.classList.add("on");
+    b.onclick=()=>{ if(benchRunning)return; setVal(o.val);
+      seg.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.val==String(o.val))); };
+    seg.appendChild(b); });
+  seg.dataset.built="1";
+}
 function buildBenchControls(){
-  const segN=$("benchN");
-  if(!segN.dataset.built){
-    [50,200,1000].forEach(n=>{ const b=document.createElement("button");
-      b.textContent=n; b.dataset.val=n; if(n===benchN)b.classList.add("on");
-      b.onclick=()=>{ if(benchRunning)return; benchN=n;
-        segN.querySelectorAll("button").forEach(x=>x.classList.toggle("on",+x.dataset.val===n)); };
-      segN.appendChild(b); });
-    segN.dataset.built="1";
-  }
+  buildSegPresets("benchN",[50,100,200,500,1000,2000].map(n=>({label:n,val:n})),
+    ()=>benchN,v=>benchN=v);
+  buildSegPresets("benchMaxSteps",[50,100,200].map(n=>({label:n,val:n})),
+    ()=>benchMaxSteps,v=>benchMaxSteps=v);
+  buildSegPresets("benchDist",
+    [{label:"Uniforme",val:"uniform"},{label:"Difficile",val:"hard"},{label:"Passager à bord",val:"onboard"}],
+    ()=>benchDist,v=>benchDist=v);
   const el=$("benchModels"); el.innerHTML="";
   if(!ALGOS.length){ el.innerHTML='<span class="chip" style="cursor:default">aucun modèle</span>'; return; }
   if(benchSel.size===0) ALGOS.forEach(a=>benchSel.add(a.algorithm));
@@ -766,8 +811,10 @@ async function runBenchmark(){
   if(!sel.length) return;
   benchRunning=true; setBenchBtn(true);
   $("benchProgress").style.display="flex"; $("benchBar").style.width="0";
-  const N=benchN, maxSteps=100, seed=(Math.random()*1e9)>>>0, rnd=mulberry32(seed);
-  const scen=Array.from({length:N},()=>({r:(rnd()*5)|0,c:(rnd()*5)|0,p:(rnd()*4)|0,d:(rnd()*4)|0}));
+  const N=benchN, maxSteps=benchMaxSteps;
+  const seed=benchSeedMode==="fixed" ? (benchSeed>>>0) : ((Math.random()*1e9)>>>0);
+  const rnd=mulberry32(seed);
+  const scen=makeScenarios(N,rnd,benchDist);
   const rows=[];
   for(let mi=0; mi<sel.length && benchRunning; mi++){
     const a=sel[mi];
@@ -786,7 +833,7 @@ async function runBenchmark(){
     $("benchBar").style.width=Math.round((mi+1)/sel.length*100)+"%";
   }
   rows.sort((x,y)=> y.success-x.success || ((x.avgSteps??1e9)-(y.avgSteps??1e9)) || (y.avgReward-x.avgReward));
-  BENCH={date:new Date(),n:N,maxSteps,seed,rows};
+  BENCH={date:new Date(),n:N,maxSteps,seed,dist:benchDist,rows};
   renderBench();
   benchRunning=false; setBenchBtn(false); $("benchProgress").style.display="none";
 }
@@ -841,9 +888,9 @@ function renderBench(){
   });
   $("benchTable").innerHTML=h+'</tbody></table>';
   const d=BENCH.date;
-  $("benchMeta").innerHTML=`${BENCH.n} scénarios · max ${BENCH.maxSteps} steps · seed ${BENCH.seed}`
+  $("benchMeta").innerHTML=`${BENCH.n} scénarios · max ${BENCH.maxSteps} steps · seed ${BENCH.seed} · ${DIST_LABEL[BENCH.dist]}`
     +` · généré ${pad(d.getHours())}:${pad(d.getMinutes())} le ${d.toLocaleDateString('fr-FR')}`
-    +`<br>Protocole : états initiaux tirés uniformément (passager hors taxi) — stress test plus exigeant que l'éval d'entraînement.`;
+    +`<br>Protocole : départs « ${DIST_LABEL[BENCH.dist]} », mêmes scénarios pour tous les modèles (seed fixé) — comparaison à l'identique.`;
   $("benchResultCard").style.display="";
 }
 function toMarkdown(){
@@ -851,7 +898,8 @@ function toMarkdown(){
   let s=`# Benchmark — Taxi Driver\n\n`;
   s+=`- Date : ${B.date.toLocaleString('fr-FR')}\n- Environnement : Taxi-v3 (500 états)\n`;
   s+=`- Scénarios : ${B.n}\n- Max steps : ${B.maxSteps}\n- Seed : ${B.seed}\n`;
-  s+=`- Protocole : états initiaux tirés uniformément (passager hors taxi), stress test\n\n`;
+  s+=`- Distribution des départs : ${DIST_LABEL[B.dist]}\n`;
+  s+=`- Protocole : mêmes scénarios pour tous les modèles (seed fixé), comparaison à l'identique\n\n`;
   s+=`| # | Modèle | Validé | Succès | Steps (résolus) | Reward moy. | Pénalités/ép | Timeouts |\n`;
   s+=`|---|--------|--------|--------|-----------------|-------------|--------------|----------|\n`;
   B.rows.forEach((r,i)=>{ s+=`| ${i+1} | ${r.algo} v${r.version} | ${r.validated?"oui":"non"} | `
@@ -870,7 +918,7 @@ function toCSV(){
 }
 function toJSON(){
   return JSON.stringify({generated_at:BENCH.date.toISOString(),env:"Taxi-v3",scenarios:BENCH.n,
-    max_steps:BENCH.maxSteps,seed:BENCH.seed,
+    max_steps:BENCH.maxSteps,seed:BENCH.seed,distribution:BENCH.dist,
     results:BENCH.rows.map((r,i)=>({rank:i+1,model:r.algo,version:r.version,validated:r.validated,
       success_rate:r.success,avg_steps_solved:r.avgSteps,avg_reward:r.avgReward,
       penalties_per_episode:r.penPer,timeouts:r.timeouts}))},null,2);
@@ -902,6 +950,13 @@ $("modes").querySelectorAll("button").forEach(b=>b.onclick=()=>setMode(b.dataset
 $("vsScenarioBtn").onclick=newScenario;
 $("vsRunBtn").onclick=runMatch;
 $("benchRunBtn").onclick=runBenchmark;
+$("benchSeedMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  if(benchRunning)return; benchSeedMode=b.dataset.val;
+  $("benchSeedMode").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+  $("benchSeedInput").disabled=benchSeedMode!=="fixed";
+});
+$("benchSeedInput").onchange=e=>{ const v=parseInt(e.target.value,10);
+  benchSeed=Number.isFinite(v)&&v>=0?v:0; e.target.value=benchSeed; };
 document.querySelectorAll(".bench-export button").forEach(b=>b.onclick=()=>exportBench(b.dataset.fmt));
 
 $("predictBtn").onclick=onPredict;

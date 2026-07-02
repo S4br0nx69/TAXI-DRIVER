@@ -32,9 +32,9 @@ def test_qlearning_convergence():
     import q_learning as Taxi
     taxi = Taxi.Taxi('ansi')
     taxi.train(train_episodes=10000, training_graph=False)
-    steps, penalties, reward = taxi.test(test_episodes=20, fast_testing=True)
-    assert steps < 100, f"Steps trop élevés: {steps}"
-    assert penalties == 0, f"Pénalités détectées: {penalties}"
+    result = taxi.test(test_episodes=20, fast_testing=True)
+    assert result['steps'] < 100, f"Steps trop élevés: {result['steps']}"
+    assert result['penalties'] == 0, f"Pénalités détectées: {result['penalties']}"
 
 
 def test_sarsa_train():

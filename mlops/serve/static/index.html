@@ -168,6 +168,7 @@
   .mini-tag{font-size:10px;font-weight:600;padding:1px 6px;border-radius:5px;margin-left:6px;
         background:rgba(217,138,138,.16);color:var(--red)}
   .cellbar{position:relative;display:inline-block;min-width:46px}
+  .bench-table .ci{color:var(--faint);font-size:10.5px;font-weight:400;font-family:var(--mono)}
   .bench-meta{font-size:12px;color:var(--faint);margin-top:14px;line-height:1.7}
   .tw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px;vertical-align:middle}
 
@@ -413,6 +414,8 @@
             <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>MD</button>
           <button class="btn sm" data-fmt="csv">CSV</button>
           <button class="btn sm" data-fmt="json">JSON</button>
+          <button class="btn sm" data-fmt="html" title="Rapport HTML5 autonome (imprimable en PDF)">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m10 13-2 2 2 2"/><path d="m14 13 2 2-2 2"/></svg>HTML</button>
         </div>
       </div>
       <div class="cb">
@@ -768,6 +771,26 @@ function rolloutLocal(pol,s0,maxSteps){
   return{done,steps,reward,pen};
 }
 
+/* statistiques descriptives d'un échantillon (écart-type non biaisé, IC normal 95%) */
+function stats(arr){
+  const n=arr.length;
+  if(!n) return {n:0,mean:null,std:null,sem:null,ci:null,median:null,min:null,max:null};
+  const mean=arr.reduce((a,b)=>a+b,0)/n;
+  const variance=n>1 ? arr.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(n-1) : 0;
+  const std=Math.sqrt(variance), sem=n>1?std/Math.sqrt(n):0, ci=1.96*sem;
+  const srt=[...arr].sort((a,b)=>a-b);
+  const median=n%2 ? srt[(n-1)/2] : (srt[n/2-1]+srt[n/2])/2;
+  return {n,mean,std,sem,ci,median,min:srt[0],max:srt[n-1]};
+}
+/* intervalle de confiance de Wilson (95%) pour une proportion k/n */
+function wilson(k,n,z=1.96){
+  if(!n) return {p:0,lo:0,hi:0};
+  const p=k/n, z2=z*z, denom=1+z2/n;
+  const center=(p+z2/(2*n))/denom;
+  const half=(z*Math.sqrt(p*(1-p)/n + z2/(4*n*n)))/denom;
+  return {p, lo:Math.max(0,center-half), hi:Math.min(1,center+half)};
+}
+
 /* fabrique un segment de boutons "presets" (valeurs numériques ou textuelles) */
 function buildSegPresets(elId,opts,getVal,setVal){
   const seg=$(elId); if(!seg||seg.dataset.built)return;
@@ -820,16 +843,20 @@ async function runBenchmark(){
     const a=sel[mi];
     $("benchProgTxt").textContent=`Évaluation · ${a.algorithm} (${mi+1}/${sel.length})`;
     let pol; try{ pol=await getPolicy(a.algorithm); }catch(e){ continue; }
-    let solved=0,stepsSolved=0,rewardSum=0,penSum=0;
+    let solved=0;
+    const rewardArr=[], stepsArr=[], penArr=[], allStepsArr=[];
     for(let i=0;i<N;i++){
       const r=rolloutLocal(pol,scen[i],maxSteps);
-      rewardSum+=r.reward; penSum+=r.pen;
-      if(r.done){ solved++; stepsSolved+=r.steps; }
+      rewardArr.push(r.reward); penArr.push(r.pen); allStepsArr.push(r.steps);
+      if(r.done){ solved++; stepsArr.push(r.steps); }
       if((i&255)===0){ await microyield(); if(!benchRunning)break; }
     }
+    const rw=stats(rewardArr), sp=stats(stepsArr), pn=stats(penArr), al=stats(allStepsArr), sc=wilson(solved,N);
     rows.push({algo:a.algorithm,validated:a.validated,version:a.version,
-      success:solved/N, avgSteps:solved?stepsSolved/solved:null,
-      avgReward:rewardSum/N, penPer:penSum/N, timeouts:N-solved});
+      n:N, solved, timeouts:N-solved,
+      success:solved/N, successLo:sc.lo, successHi:sc.hi,
+      avgSteps:sp.n?sp.mean:null, avgReward:rw.mean, penPer:pn.mean,
+      reward:rw, steps:sp, pen:pn, allSteps:al});
     $("benchBar").style.width=Math.round((mi+1)/sel.length*100)+"%";
   }
   rows.sort((x,y)=> y.success-x.success || ((x.avgSteps??1e9)-(y.avgSteps??1e9)) || (y.avgReward-x.avgReward));
@@ -875,53 +902,244 @@ function renderBenchCharts(){
 function renderBench(){
   if(!BENCH) return;
   renderBenchCharts();
-  let h='<table class="bench-table"><thead><tr><th>Modèle</th><th>Succès</th>'
-    +'<th>Steps (résolus)</th><th>Reward moy.</th><th>Pénalités/ép</th><th>Timeouts</th></tr></thead><tbody>';
+  let h='<table class="bench-table"><thead><tr><th>Modèle</th><th>Succès [IC95]</th>'
+    +'<th>Steps résolus ±σ</th><th>Reward moy. ±IC95</th><th>Pénalités/ép</th><th>Timeouts</th></tr></thead><tbody>';
   BENCH.rows.forEach((r,i)=>{
+    const sci=r.reward&&r.reward.ci!=null?` ±${r.reward.ci.toFixed(1)}`:"";
+    const ssd=r.steps&&r.steps.n>1?` ±${r.steps.std.toFixed(1)}`:"";
     h+=`<tr class="${i===0?'best':''}"><td><span class="rank">${i+1}</span>`
       +`<span class="tw" style="background:${colorFor(r.algo)}"></span>${r.algo}`
       +`${r.validated?"":'<span class="mini-tag">test</span>'}</td>`
-      +`<td>${(r.success*100).toFixed(1)}%</td>`
-      +`<td>${r.avgSteps!=null?r.avgSteps.toFixed(2):"—"}</td>`
-      +`<td>${r.avgReward>=0?"+":""}${r.avgReward.toFixed(2)}</td>`
+      +`<td>${(r.success*100).toFixed(1)}%<span class="ci"> [${(r.successLo*100).toFixed(0)}–${(r.successHi*100).toFixed(0)}]</span></td>`
+      +`<td>${r.avgSteps!=null?r.avgSteps.toFixed(2):"—"}<span class="ci">${ssd}</span></td>`
+      +`<td>${r.avgReward>=0?"+":""}${r.avgReward.toFixed(2)}<span class="ci">${sci}</span></td>`
       +`<td>${r.penPer.toFixed(2)}</td><td>${r.timeouts}</td></tr>`;
   });
   $("benchTable").innerHTML=h+'</tbody></table>';
   const d=BENCH.date;
   $("benchMeta").innerHTML=`${BENCH.n} scénarios · max ${BENCH.maxSteps} steps · seed ${BENCH.seed} · ${DIST_LABEL[BENCH.dist]}`
     +` · généré ${pad(d.getHours())}:${pad(d.getMinutes())} le ${d.toLocaleDateString('fr-FR')}`
-    +`<br>Protocole : départs « ${DIST_LABEL[BENCH.dist]} », mêmes scénarios pour tous les modèles (seed fixé) — comparaison à l'identique.`;
+    +`<br>Protocole : départs « ${DIST_LABEL[BENCH.dist]} », mêmes scénarios pour tous les modèles (seed fixé) — comparaison à l'identique.`
+    +`<br>Statistiques : IC 95% de Wilson pour le succès, approximation normale (±1.96·SEM) pour le reward ; σ = écart-type non biaisé (n−1).`;
   $("benchResultCard").style.display="";
+}
+/* helpers de significativité : chevauchement des IC 95% de reward entre 2 modèles */
+function ciOverlap(a,b){
+  if(!a.reward||!b.reward||a.reward.ci==null||b.reward.ci==null) return null;
+  const aLo=a.reward.mean-a.reward.ci, aHi=a.reward.mean+a.reward.ci;
+  const bLo=b.reward.mean-b.reward.ci, bHi=b.reward.mean+b.reward.ci;
+  return aLo<=bHi && bLo<=aHi;   // true = IC se chevauchent (écart non significatif)
 }
 function toMarkdown(){
   const B=BENCH;
-  let s=`# Benchmark — Taxi Driver\n\n`;
-  s+=`- Date : ${B.date.toLocaleString('fr-FR')}\n- Environnement : Taxi-v3 (500 états)\n`;
-  s+=`- Scénarios : ${B.n}\n- Max steps : ${B.maxSteps}\n- Seed : ${B.seed}\n`;
+  let s=`# Rapport Benchmark — Taxi Driver\n\n`;
+  s+=`## Méthodologie\n\n`;
+  s+=`- Date : ${B.date.toLocaleString('fr-FR')}\n- Environnement : Gymnasium Taxi-v3 (500 états, 6 actions ; reward −1/pas, +20 dépose, −10 pickup/dépose illégal)\n`;
+  s+=`- Échantillon : ${B.n} épisodes\n- Horizon max : ${B.maxSteps} steps\n- Seed : ${B.seed} (scénarios identiques pour tous les modèles)\n`;
   s+=`- Distribution des départs : ${DIST_LABEL[B.dist]}\n`;
-  s+=`- Protocole : mêmes scénarios pour tous les modèles (seed fixé), comparaison à l'identique\n\n`;
-  s+=`| # | Modèle | Validé | Succès | Steps (résolus) | Reward moy. | Pénalités/ép | Timeouts |\n`;
-  s+=`|---|--------|--------|--------|-----------------|-------------|--------------|----------|\n`;
-  B.rows.forEach((r,i)=>{ s+=`| ${i+1} | ${r.algo} v${r.version} | ${r.validated?"oui":"non"} | `
-    +`${(r.success*100).toFixed(1)}% | ${r.avgSteps!=null?r.avgSteps.toFixed(2):"—"} | `
-    +`${r.avgReward>=0?"+":""}${r.avgReward.toFixed(2)} | ${r.penPer.toFixed(2)} | ${r.timeouts} |\n`; });
+  s+=`- Politique évaluée : greedy (argmax) sur la policy servie ; rollouts déterministes\n`;
+  s+=`- Statistiques : IC 95% de Wilson (succès), ±1.96·SEM (reward), σ non biaisé (n−1)\n\n`;
+  s+=`## Résultats\n\n`;
+  s+=`| # | Modèle | n | Succès % [IC95] | Reward moy. ±IC95 | σ reward | Médiane [min ; max] | Steps résolus ±σ | Pénalités/ép | Timeouts |\n`;
+  s+=`|---|--------|---|-----------------|-------------------|----------|---------------------|------------------|--------------|----------|\n`;
+  B.rows.forEach((r,i)=>{ const rw=r.reward, sp=r.steps;
+    s+=`| ${i+1} | ${r.algo} v${r.version}${r.validated?"":" (test)"} | ${r.n} | `
+    +`${(r.success*100).toFixed(1)} [${(r.successLo*100).toFixed(1)}–${(r.successHi*100).toFixed(1)}] | `
+    +`${rw.mean>=0?"+":""}${rw.mean.toFixed(2)} ±${rw.ci.toFixed(2)} | ${rw.std.toFixed(2)} | `
+    +`${rw.median.toFixed(1)} [${rw.min.toFixed(0)} ; ${rw.max.toFixed(0)}] | `
+    +`${sp.n?`${sp.mean.toFixed(2)} ±${sp.std.toFixed(2)}`:"—"} | ${r.penPer.toFixed(3)} | ${r.timeouts} |\n`; });
   const w=B.rows[0];
-  s+=`\n**Vainqueur : ${w.algo}** — ${(w.success*100).toFixed(1)}% de succès`
-    +`${w.avgSteps!=null?`, ${w.avgSteps.toFixed(2)} steps moyens`:""}.\n`;
+  s+=`\n## Analyse\n\n`;
+  s+=`**Vainqueur : ${w.algo} v${w.version}** — ${(w.success*100).toFixed(1)}% de succès `
+    +`(IC95 ${(w.successLo*100).toFixed(1)}–${(w.successHi*100).toFixed(1)}%)`
+    +`${w.avgSteps!=null?`, ${w.avgSteps.toFixed(2)} steps moyens`:""}, reward ${w.reward.mean>=0?"+":""}${w.reward.mean.toFixed(2)} ±${w.reward.ci.toFixed(2)}.\n`;
+  if(B.rows.length>1){ const o=ciOverlap(B.rows[0],B.rows[1]);
+    s+=`\nÉcart avec le 2ᵉ (${B.rows[1].algo}) sur le reward : `
+      +`${o===null?"non calculable":o?"**IC 95% chevauchants** → différence non significative au seuil de 5%":"**IC 95% disjoints** → différence significative au seuil de 5%"}.\n`; }
   return s;
 }
 function toCSV(){
-  let s="rank,model,version,validated,success_rate,avg_steps_solved,avg_reward,penalties_per_ep,timeouts\n";
-  BENCH.rows.forEach((r,i)=>{ s+=`${i+1},${r.algo},${r.version},${r.validated},${r.success.toFixed(4)},`
-    +`${r.avgSteps!=null?r.avgSteps.toFixed(4):""},${r.avgReward.toFixed(4)},${r.penPer.toFixed(4)},${r.timeouts}\n`; });
+  let s="rank,model,version,validated,n,success_rate,success_ci95_lo,success_ci95_hi,"
+    +"reward_mean,reward_std,reward_sem,reward_ci95,reward_median,reward_min,reward_max,"
+    +"steps_solved_mean,steps_solved_std,penalties_per_ep,timeouts\n";
+  BENCH.rows.forEach((r,i)=>{ const rw=r.reward, sp=r.steps;
+    s+=`${i+1},${r.algo},${r.version},${r.validated},${r.n},${r.success.toFixed(4)},`
+    +`${r.successLo.toFixed(4)},${r.successHi.toFixed(4)},`
+    +`${rw.mean.toFixed(4)},${rw.std.toFixed(4)},${rw.sem.toFixed(4)},${rw.ci.toFixed(4)},`
+    +`${rw.median.toFixed(4)},${rw.min.toFixed(4)},${rw.max.toFixed(4)},`
+    +`${sp.n?sp.mean.toFixed(4):""},${sp.n?sp.std.toFixed(4):""},${r.penPer.toFixed(4)},${r.timeouts}\n`; });
   return s;
 }
 function toJSON(){
-  return JSON.stringify({generated_at:BENCH.date.toISOString(),env:"Taxi-v3",scenarios:BENCH.n,
-    max_steps:BENCH.maxSteps,seed:BENCH.seed,distribution:BENCH.dist,
-    results:BENCH.rows.map((r,i)=>({rank:i+1,model:r.algo,version:r.version,validated:r.validated,
-      success_rate:r.success,avg_steps_solved:r.avgSteps,avg_reward:r.avgReward,
-      penalties_per_episode:r.penPer,timeouts:r.timeouts}))},null,2);
+  const st=x=>x?{n:x.n,mean:x.mean,std:x.std,sem:x.sem,ci95:x.ci,median:x.median,min:x.min,max:x.max}:null;
+  return JSON.stringify({
+    generated_at:BENCH.date.toISOString(),
+    environment:{name:"Taxi-v3",n_states:500,n_actions:6,reward_scheme:{step:-1,dropoff:20,illegal:-10}},
+    protocol:{scenarios:BENCH.n,max_steps:BENCH.maxSteps,seed:BENCH.seed,distribution:BENCH.dist,
+      policy:"greedy",same_scenarios_across_models:true},
+    statistics:{success_ci:"wilson_95",reward_ci:"normal_1.96_sem",std:"sample_n_minus_1"},
+    results:BENCH.rows.map((r,i)=>({rank:i+1,model:r.algo,version:r.version,validated:r.validated,n:r.n,
+      solved:r.solved,timeouts:r.timeouts,
+      success_rate:r.success,success_ci95:[r.successLo,r.successHi],
+      reward:st(r.reward),steps_solved:st(r.steps),penalties:st(r.pen),
+      penalties_per_episode:r.penPer}))},null,2);
+}
+function toHTML(){
+  const B=BENCH, esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const w=B.rows[0], second=B.rows[1];
+  const maxSucc=Math.max(1,...B.rows.map(r=>r.success*100));
+  const trs=B.rows.map((r,i)=>{
+    const succ=r.success*100, bw=(succ/maxSucc*100).toFixed(1), rw=r.reward, sp=r.steps;
+    return `<tr${i===0?' class="best"':""}>
+      <td class="rank">${i+1}</td>
+      <td class="model"><span class="sw" style="background:${colorFor(r.algo)}"></span>${esc(r.algo)} <span class="v">v${r.version}</span>${r.validated?"":' <span class="tag">test</span>'}</td>
+      <td class="n">${r.n}</td>
+      <td class="n">${succ.toFixed(1)}% <span class="ci">[${(r.successLo*100).toFixed(1)}–${(r.successHi*100).toFixed(1)}]</span><span class="bar"><i style="width:${bw}%;background:${colorFor(r.algo)}"></i></span></td>
+      <td class="n ${rw.mean>=0?"pos":"neg"}">${rw.mean>=0?"+":""}${rw.mean.toFixed(2)} <span class="ci">±${rw.ci.toFixed(2)}</span></td>
+      <td class="n">${rw.std.toFixed(2)}</td>
+      <td class="n">${rw.median.toFixed(1)} <span class="ci">[${rw.min.toFixed(0)} ; ${rw.max.toFixed(0)}]</span></td>
+      <td class="n">${sp.n?`${sp.mean.toFixed(2)} <span class="ci">±${sp.std.toFixed(2)}</span>`:"—"}</td>
+      <td class="n">${r.penPer.toFixed(3)}</td>
+      <td class="n">${r.timeouts}</td></tr>`;
+  }).join("\n");
+  let sig="";
+  if(second){ const o=ciOverlap(w,second);
+    sig = o===null ? "" : (o
+      ? `L'écart de reward moyen avec le 2ᵉ (<b>${esc(second.algo)}</b>) n'est <b>pas statistiquement significatif</b> au seuil de 5% : les IC 95% se chevauchent.`
+      : `L'écart de reward moyen avec le 2ᵉ (<b>${esc(second.algo)}</b>) est <b>statistiquement significatif</b> au seuil de 5% : les IC 95% sont disjoints.`); }
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Taxi Driver — Inference UI">
+<title>Rapport Benchmark — Taxi Driver (${esc(B.date.toLocaleDateString("fr-FR"))})</title>
+<style>
+  :root{--ink:#1c2130;--muted:#5b6472;--line:#e3e7ee;--bg:#f6f8fb;--card:#fff;--accent:#5560d6;
+        --pos:#1f9d63;--neg:#c8483f;--best:#eef0fd}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);padding:40px 20px}
+  .wrap{max-width:960px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+        border-radius:14px;padding:38px 42px;box-shadow:0 1px 3px rgba(20,30,60,.06)}
+  header{display:flex;align-items:flex-start;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:24px}
+  .logo{width:42px;height:42px;border-radius:10px;background:#fdb827;display:grid;place-items:center;flex:none;font-size:22px}
+  h1{font-size:22px;margin:0}
+  .sub{color:var(--muted);font-size:13px;margin-top:3px}
+  .print{margin-left:auto;font:inherit;font-size:13px;padding:8px 14px;border:1px solid var(--line);
+         border-radius:8px;background:#fff;cursor:pointer;color:var(--muted)}
+  .print:hover{border-color:var(--accent);color:var(--accent)}
+  h2{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+     margin:30px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  p{margin:10px 0}
+  .winner{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:10px;
+          background:var(--best);border:1px solid #d3d8fb;margin-bottom:6px}
+  .winner .medal{font-size:26px}
+  .winner b{color:var(--accent)}
+  .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 26px;font-size:13.5px}
+  .meta div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:5px 0}
+  .meta .k{color:var(--muted)} .meta .val{font-variant-numeric:tabular-nums;font-weight:600}
+  dl.defs{font-size:13px;margin:0}
+  dl.defs dt{font-weight:600;margin-top:12px}
+  dl.defs dd{margin:2px 0 0;color:var(--muted)}
+  code{background:#eef1f6;padding:1px 6px;border-radius:4px;font-size:12.5px;
+       font-family:ui-monospace,Menlo,Consolas,monospace}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  th{text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);
+     border-bottom:2px solid var(--line);padding:9px 7px;vertical-align:bottom}
+  th:first-child,th.model{text-align:left}
+  td{padding:9px 7px;border-bottom:1px solid var(--line)}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  td.rank{color:var(--muted);width:26px}
+  tr.best td{background:var(--best)} tr.best .model{font-weight:700}
+  .model{display:flex;align-items:center;gap:8px}
+  .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .v{color:var(--muted);font-size:11.5px;font-weight:400}
+  .tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;background:#fde2e0;color:var(--neg)}
+  .ci{color:var(--muted);font-size:10.5px;font-weight:400}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .bar{display:block;height:4px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:3px}
+  .note{font-size:12.5px;color:var(--muted);margin-top:18px;line-height:1.7;
+        border-top:1px solid var(--line);padding-top:16px}
+  footer{margin-top:22px;font-size:11.5px;color:var(--muted);text-align:center}
+  @media print{body{background:#fff;padding:0}.wrap{border:none;box-shadow:none;border-radius:0;max-width:none}
+    .print{display:none} h2{break-after:avoid} tr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">🚕</div>
+    <div><h1>Rapport Benchmark — Taxi Driver</h1>
+      <div class="sub">Étude comparative d'agents d'apprentissage par renforcement · généré le ${esc(B.date.toLocaleString("fr-FR"))}</div></div>
+    <button class="print" onclick="window.print()">Imprimer / PDF</button>
+  </header>
+
+  <div class="winner">
+    <span class="medal">🏆</span>
+    <div>Meilleur modèle : <b>${esc(w.algo)} v${w.version}</b> — ${(w.success*100).toFixed(1)}% de succès
+      (IC 95% : ${(w.successLo*100).toFixed(1)}–${(w.successHi*100).toFixed(1)}%),
+      reward moyen ${w.reward.mean>=0?"+":""}${w.reward.mean.toFixed(2)} ± ${w.reward.ci.toFixed(2)}${w.avgSteps!=null?`, ${w.avgSteps.toFixed(2)} steps moyens`:""}.</div>
+  </div>
+
+  <h2>1. Protocole expérimental</h2>
+  <p>Chaque modèle est évalué sur un <b>échantillon commun</b> de <b>${B.n}</b> états initiaux, générés
+  pseudo-aléatoirement à partir d'un <b>seed fixe (${B.seed})</b> selon la distribution
+  « <b>${esc(DIST_LABEL[B.dist])}</b> ». Utiliser les mêmes scénarios pour tous les modèles réduit la variance
+  inter-modèles et permet une comparaison appariée à l'identique. La politique évaluée est <b>greedy</b>
+  (<code>argmax</code> sur la policy servie) ; les rollouts sont donc <b>déterministes</b> et reproductibles.</p>
+  <div class="meta">
+    <div><span class="k">Environnement</span><span class="val">Gymnasium Taxi-v3</span></div>
+    <div><span class="k">Espace d'états / actions</span><span class="val">500 / 6</span></div>
+    <div><span class="k">Taille d'échantillon (n)</span><span class="val">${B.n}</span></div>
+    <div><span class="k">Horizon max / épisode</span><span class="val">${B.maxSteps} steps</span></div>
+    <div><span class="k">Distribution des départs</span><span class="val">${esc(DIST_LABEL[B.dist])}</span></div>
+    <div><span class="k">Seed</span><span class="val">${B.seed}</span></div>
+    <div><span class="k">Reward (pas / dépose / illégal)</span><span class="val">−1 / +20 / −10</span></div>
+    <div><span class="k">Politique</span><span class="val">greedy (déterministe)</span></div>
+  </div>
+
+  <h2>2. Définition des métriques</h2>
+  <dl class="defs">
+    <dt>Taux de succès</dt>
+    <dd>Proportion d'épisodes où le passager est déposé à destination avant l'horizon. IC à 95% par
+      <b>intervalle de Wilson</b> (robuste pour les proportions extrêmes et petits n).</dd>
+    <dt>Reward moyen ± IC 95%</dt>
+    <dd>Moyenne du retour cumulé par épisode. IC par approximation normale : <code>x̄ ± 1.96 · σ/√n</code>
+      (σ/√n = erreur-type de la moyenne, SEM).</dd>
+    <dt>σ (écart-type)</dt>
+    <dd>Dispersion du reward, estimateur non biaisé <code>√(Σ(xᵢ−x̄)² / (n−1))</code>.</dd>
+    <dt>Médiane [min ; max]</dt>
+    <dd>Statistiques d'ordre du reward — résistantes aux valeurs extrêmes, complètent la moyenne.</dd>
+    <dt>Steps résolus ± σ</dt>
+    <dd>Nombre de pas jusqu'à la dépose, <b>sur les seuls épisodes résolus</b> (± écart-type).</dd>
+    <dt>Timeouts</dt>
+    <dd>Épisodes atteignant l'horizon sans résolution (= n − résolus).</dd>
+  </dl>
+
+  <h2>3. Résultats</h2>
+  <table>
+    <thead><tr><th>#</th><th class="model">Modèle</th><th>n</th><th>Succès % [IC95]</th>
+      <th>Reward moy. ±IC95</th><th>σ</th><th>Médiane [min ; max]</th><th>Steps résolus ±σ</th>
+      <th>Pén./ép</th><th>Timeouts</th></tr></thead>
+    <tbody>
+${trs}
+    </tbody>
+  </table>
+
+  <h2>4. Analyse</h2>
+  <p><b>${esc(w.algo)} v${w.version}</b> domine le classement (tri par succès, puis steps, puis reward).
+  ${sig}</p>
+  <p class="note"><b>Reproductibilité.</b> Ce rapport est entièrement reproductible : mêmes seed
+  (${B.seed}), distribution (${esc(DIST_LABEL[B.dist])}), n (${B.n}) et horizon (${B.maxSteps}) →
+  scénarios et résultats identiques. Rollouts calculés côté client sur la policy greedy servie par l'API,
+  sans appel réseau par pas de temps.</p>
+
+  <footer>Taxi Driver — Reinforcement Learning · rapport scientifique auto-généré (HTML5 autonome, imprimable en PDF)</footer>
+</div>
+</body>
+</html>`;
 }
 function download(name,text,mime){
   const a=document.createElement("a");
@@ -933,7 +1151,8 @@ function exportBench(fmt){
   const d=BENCH.date, st=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
   if(fmt==="md") download(`benchmark-taxi-${st}.md`,toMarkdown(),"text/markdown");
   else if(fmt==="csv") download(`benchmark-taxi-${st}.csv`,toCSV(),"text/csv");
-  else download(`benchmark-taxi-${st}.json`,toJSON(),"application/json");
+  else if(fmt==="json") download(`benchmark-taxi-${st}.json`,toJSON(),"application/json");
+  else download(`benchmark-taxi-${st}.html`,toHTML(),"text/html");
 }
 
 /* ---------- mode switching ---------- */

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Artefacts ML / runs
+mlruns/
+models/
+*.pth
+
+# OS / éditeurs
+.DS_Store
+*.swp

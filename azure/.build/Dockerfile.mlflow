@@ -1,0 +1,21 @@
+# UI MLflow pour Azure Container Apps.
+# Le store fichier (mlruns/) est un SNAPSHOT embarqué au build : l'UI présente
+# les runs existants au moment du déploiement (lecture). Pour rafraîchir les
+# runs, rebuild + redeploy, ou passe sur un Azure File Share monté.
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir mlflow==2.19.0
+
+# Snapshot des expériences (params / métriques / artefacts locaux).
+COPY mlruns/ ./mlruns/
+
+ENV PYTHONUNBUFFERED=1
+ENV GIT_PYTHON_REFRESH=quiet
+
+EXPOSE 5000
+
+# --host 0.0.0.0 indispensable pour être joignable depuis l'ingress Azure.
+CMD ["mlflow", "ui", "--backend-store-uri", "file:/app/mlruns", \
+     "--host", "0.0.0.0", "--port", "5000"]

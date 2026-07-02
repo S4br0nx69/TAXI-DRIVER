@@ -50,6 +50,44 @@ services:
     stdin_open: true
     tty: true
 
+  # Entraînement instrumenté MLflow (Phases 2-3).
+  # Override l'algo/les options : docker compose run --rm train sarsa --register
+  train:
+    build: .
+    entrypoint: ["python3", "-m", "mlops.train"]
+    command: ["qlearning", "--register"]
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./models:/app/models
+    environment:
+      - GIT_PYTHON_REFRESH=quiet
+
+  # UI MLflow pour explorer les runs (http://localhost:5000).
+  mlflow-ui:
+    build: .
+    entrypoint: ["mlflow", "ui"]
+    command: ["--backend-store-uri", "file:/app/mlruns",
+              "--host", "0.0.0.0", "--port", "5000"]
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/app/mlruns
+    restart: unless-stopped
+
+  # API d'inférence FastAPI (Phase 4) — sert le modèle champion.
+  serve:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    ports:
+      - "8000:8000"
+    environment:
+      # 'auto' = meilleur champion tous algos ; ou 'sarsa', 'qlearning', 'dqn'...
+      - TAXI_SERVE_ALGORITHM=auto
+    volumes:
+      - ./models:/app/models:ro   # modèles entraînés (lecture seule)
+    restart: unless-stopped
+
   portainer:
     image: portainer/portainer-ce:latest
     ports:

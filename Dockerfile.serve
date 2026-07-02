@@ -1,0 +1,20 @@
+# Image de serving — API d'inférence FastAPI (Phase 4 MLOps).
+# Légère : pas de torch ni gymnasium (inférence basée sur policy.npy + numpy).
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements-serve.txt .
+RUN pip install --no-cache-dir -r requirements-serve.txt
+
+# Code de la couche MLOps (le serving n'a besoin que de mlops/).
+COPY mlops/ ./mlops/
+
+ENV PYTHONUNBUFFERED=1
+# Modèle servi : 'auto' = meilleur champion tous algos, ou un algo précis.
+ENV TAXI_SERVE_ALGORITHM=auto
+
+EXPOSE 8000
+
+# Le dossier models/ est monté en volume au runtime (voir docker-compose.yml).
+CMD ["uvicorn", "mlops.serve.app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -9,3 +9,6 @@ __pycache__/
 LICENSE
 TAXI-DRIVER_AI.pdf
 img/
+mlruns/
+mlartifacts/
+models/

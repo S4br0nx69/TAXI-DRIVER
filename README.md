@@ -11,6 +11,7 @@
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10.9-11557C?style=for-the-badge)](https://matplotlib.org)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![Portainer](https://img.shields.io/badge/Portainer-CE-13BEF9?style=for-the-badge&logo=portainer&logoColor=white)](https://portainer.io)
+[![Azure](https://img.shields.io/badge/Azure-Container_Apps-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/products/container-apps)
 [![CI](https://github.com/S4br0nx69/TAXI-DRIVER/actions/workflows/ci.yml/badge.svg)](https://github.com/S4br0nx69/TAXI-DRIVER/actions/workflows/ci.yml)
 
 <br>
@@ -26,6 +27,8 @@ Résolution de l'environnement **Taxi-v3** par apprentissage par renforcement mo
 [Algorithmes](#-algorithmes) •
 [Benchmark](#-benchmark) •
 [Tests & CI/CD](#-tests--cicd) •
+[MLOps](#-mlops) •
+[Déploiement Azure](#-déploiement-azure) •
 [Sécurité](#-sécurité) •
 [Architecture](#-architecture)
 
@@ -264,7 +267,9 @@ python -m pytest tests/ -v
 ```
 
 <details>
-<summary><b>7 tests — détail</b></summary>
+<summary><b>15 tests — détail</b></summary>
+
+**Agents & utils (`test_agents.py`)**
 
 | Test | Cible | Vérifie |
 |------|-------|---------|
@@ -276,15 +281,36 @@ python -m pytest tests/ -v
 | `test_utils_safe_input_int` | `utils.py` | Gère texte, hors bornes, valeur valide |
 | `test_utils_safe_input_float` | `utils.py` | Gère texte, hors bornes, valeur valide |
 
+**MLOps (`test_mlops.py`)**
+
+| Test | Cible | Vérifie |
+|------|-------|---------|
+| `test_config_resolve_merge` | `config.py` | Fusion defaults + hyperparams de l'algo |
+| `test_config_override_precedence` | `config.py` | Précédence des overrides, `None` ignoré |
+| `test_config_unknown_algorithm` | `config.py` | Lève `KeyError` sur algo inconnu |
+| `test_seeding_determinism` | `seeding.py` | Même seed → même séquence aléatoire |
+| `test_registry_promotion_logic` | `registry.py` | Promotion + remplacement de champion |
+| `test_registry_guardrails_block_promotion` | `registry.py` | Garde-fous bloquent un mauvais modèle |
+| `test_extract_policy_from_qtable` | `registry.py` | Policy greedy = argmax de la Q-table |
+| `test_serving_predict` | `serve/app.py` | `/predict` renvoie l'action, bornes `422` |
+
 </details>
 
 ### CI/CD — GitHub Actions
 
-Chaque push sur `main` et chaque pull request déclenche automatiquement :
+Chaque push sur `main` et chaque pull request déclenche automatiquement deux jobs :
+
+**Job `test`**
 - Installation des dépendances (Gymnasium, NumPy, Matplotlib, PyTorch CPU, pytest)
-- Exécution des 7 tests unitaires
+- Exécution des tests unitaires
 - Smoke test du brute-force
 - Smoke test du Q-Learning (5000 épisodes d'entraînement + validation)
+
+**Job `mlops`**
+- Installation des dépendances MLOps (MLflow, FastAPI, PyYAML)
+- Tests unitaires `tests/test_mlops.py`
+- Entraînement + enregistrement SARSA (avec promotion)
+- Smoke test de l'API de serving (`/health`, `/predict`, bornes `422`)
 
 > Le workflow est défini dans [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
@@ -308,6 +334,105 @@ python grid_search.py
 Le script affiche la meilleure combinaison trouvée avec les steps et reward correspondants.
 
 </details>
+
+---
+
+## 🔬 MLOps
+
+Le projet intègre une chaîne MLOps **100 % locale** (aucun serveur distant, aucun appel réseau) dans le package [`mlops/`](mlops/), mise en place en 5 phases. Détails dans [`architecture/mlops.md`](architecture/mlops.md).
+
+| Phase | Brique | Outil |
+|-------|--------|-------|
+| 1 | Reproductibilité (seeds) & config centralisée | `seeding.py`, `config.yaml` |
+| 2 | Suivi d'expériences | MLflow (backend fichier `mlruns/`) |
+| 3 | Registry & versioning + promotion auto | registry fichier (`models/`) |
+| 4 | Serving (API d'inférence) | FastAPI |
+| 5 | Pipeline d'orchestration & CI/CD | `pipeline.py`, GitHub Actions |
+
+```bash
+make build                       # build des images MLOps
+make train ALGO=sarsa EPISODES=10000   # entraîne + enregistre + promotion
+make pipeline                    # qlearning+sarsa+montecarlo -> champion global
+make mlflow-ui                   # UI MLflow      -> http://localhost:5000
+make serve                       # API d'inférence -> http://localhost:8000
+```
+
+<details>
+<summary><b>🧠 Entraînement instrumenté & registry</b></summary>
+
+`train.py` entraîne n'importe quel agent depuis la config centralisée, sème tous les RNG (runs reproductibles) et logge params / métriques / artefacts dans MLflow. Le modèle est versionné dans `models/<algo>/vN/` ; une version devient **champion** si elle passe les garde-fous (`mean_steps ≤ 30`, `0` pénalité) **et** améliore le `mean_reward` du champion courant.
+
+```bash
+docker compose run --rm train sarsa --episodes 10000 --register
+```
+
+</details>
+
+<details>
+<summary><b>🌐 API d'inférence (serving)</b></summary>
+
+L'API charge la **policy greedy** du champion (une action optimale par état, extraite quel que soit l'algorithme) — serving uniforme et **sans torch**.
+
+```bash
+docker compose up serve
+curl -X POST http://localhost:8000/predict \
+     -H 'Content-Type: application/json' -d '{"state": 328}'
+# -> {"state":328,"action":1,"action_name":"North","algorithm":"sarsa","model_version":2}
+```
+
+| Route | Rôle |
+|-------|------|
+| `GET /health` | état du service + modèle chargé |
+| `GET /model/info` | métadonnées du champion (version, métriques, run) |
+| `POST /predict` | `{"state": int}` → action greedy |
+| `POST /reload` | recharge le champion à chaud (après retraining) |
+
+</details>
+
+---
+
+## ☁️ Déploiement Azure
+
+Le projet est déployable sur **Azure Container Apps** (site + UI MLflow), en HTTPS et **scale-to-zero** (coût quasi nul au repos). Tout est scripté dans [`azure/`](azure/) détails dans [`azure/README.md`](azure/README.md).
+
+| Service | Rôle | Port |
+|---------|------|------|
+| `taxi-serve` | API d'inférence FastAPI + interface web de benchmark | 8000 |
+| `taxi-mlflow` | UI MLflow (snapshot des runs `mlruns/`) | 5000 |
+
+```bash
+az login
+./azure/deploy.sh                # build local Docker + push ACR + déploie 2 apps
+```
+
+> [!NOTE]
+> Le script build les images **en local** puis les pousse vers l'ACR : les *ACR Tasks* (build cloud) sont bloqués sur les abonnements gratuits/sponsorisés. Les modèles (`models/`) et le snapshot `mlruns/` sont **embarqués dans les images** (l'API de serving reste sans torch).
+
+<details>
+<summary><b>⚙️ Paramétrer & gérer</b></summary>
+
+```bash
+# Personnaliser (région, groupe, modèle servi par défaut...)
+LOCATION=westeurope SERVE_ALGO=sarsa ./azure/deploy.sh
+
+# Redéployer après un réentraînement (réutilise le même registre)
+ACR_NAME=<mon-acr> ./azure/deploy.sh
+
+# Tout supprimer (stopper les coûts)
+az group delete -n taxi-driver-rg --yes --no-wait
+```
+
+| Variable | Défaut | Rôle |
+|----------|--------|------|
+| `LOCATION` | `francecentral` | région Azure |
+| `RESOURCE_GROUP` | `taxi-driver-rg` | groupe de ressources |
+| `ACR_NAME` | `taxidriveracr<random>` | registre (globalement unique) |
+| `SERVE_ALGO` | `auto` | modèle servi par défaut (`auto`/`sarsa`/`qlearning`/`dqn`) |
+
+</details>
+
+> [!TIP]
+> Le flux : providers Azure → Azure Container Registry → build/push des images → environnement Container Apps → 2 apps avec ingress public. À la fin, le script affiche les URLs `https://…azurecontainerapps.io` des deux services.
 
 ---
 
@@ -349,13 +474,33 @@ TAXI-DRIVER/
 ├── deep_Q_learning/
 │   ├── main.py
 │   └── deep_q_learning.py    # Classe DQNAgent — PyTorch
+├── mlops/                     # Couche MLOps (100% locale)
+│   ├── config.yaml            # Hyperparamètres centralisés
+│   ├── config.py              # Résolution de config
+│   ├── seeding.py             # Seeds globaux (reproductibilité)
+│   ├── tracking.py            # Helpers MLflow (backend fichier)
+│   ├── train.py               # Entrypoint d'entraînement instrumenté
+│   ├── registry.py            # Model registry + versioning + promotion
+│   ├── pipeline.py            # Orchestration train -> register -> select
+│   └── serve/
+│       ├── app.py             # API d'inférence FastAPI
+│       └── static/            # Interface web (benchmark + prédictions)
+├── azure/                     # Déploiement Azure Container Apps
+│   ├── Dockerfile.serve       # Image site (modèles embarqués)
+│   ├── Dockerfile.mlflow      # Image MLflow UI (snapshot mlruns/)
+│   ├── deploy.sh              # Déploiement (build local + push ACR)
+│   └── README.md
 ├── bruteforce.py              # Baseline random agent
 ├── grid_search.py             # Optimisation des hyperparamètres
 ├── utils.py                   # Validation sécurisée des entrées
-├── Dockerfile
+├── Dockerfile                 # Image entraînement (+ MLOps)
+├── Dockerfile.serve           # Image serving (légère, sans torch)
 ├── docker-compose.yml
+├── Makefile                   # Orchestration des commandes MLOps
 ├── .dockerignore
 ├── requirements.txt
+├── requirements-mlops.txt
+├── requirements-serve.txt
 ├── SECURITY.md
 ├── .gitignore
 ├── LICENSE
@@ -388,6 +533,9 @@ TAXI-DRIVER/
 | Deep Learning | PyTorch | `2.12.0` |
 | Containerisation | Docker | `latest` |
 | Supervision | Portainer CE | `latest` |
+| Suivi d'expériences | MLflow | `2.19.0` |
+| Serving | FastAPI / Uvicorn | `latest` |
+| Déploiement cloud | Azure Container Apps | — |
 | Tests | pytest | `9.0.3` |
 | CI/CD | GitHub Actions | — |
 

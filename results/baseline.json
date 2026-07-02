@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-30T15:38:43.136245",
+  "timestamp": "2026-07-02T12:45:06.375002",
   "seeds": [
     0,
     1,
@@ -21,14 +21,14 @@
           1,
           2
         ],
-        "reward": -14.797999999999996,
-        "reward_std": 4.26839017273101,
-        "steps": 33.474,
-        "steps_std": 3.83416779323319,
+        "reward": -18.067333333333334,
+        "reward_std": 5.682901215244043,
+        "steps": 36.407333333333334,
+        "steps_std": 5.0947725715242225,
         "penalties": 0.0,
         "penalties_std": 0.0,
-        "completion_rate": 88.93333333333334,
-        "completion_rate_std": 2.067741655902775
+        "completion_rate": 87.33333333333333,
+        "completion_rate_std": 2.801586851926758
       }
     },
     "sarsa": {
@@ -48,14 +48,14 @@
           1,
           2
         ],
-        "reward": 4.256,
-        "reward_std": 4.27947130691008,
-        "steps": 16.422,
-        "steps_std": 3.8241018117548413,
+        "reward": 2.029333333333333,
+        "reward_std": 3.5734503712176493,
+        "steps": 18.438666666666666,
+        "steps_std": 3.1958249152431506,
         "penalties": 0.0,
         "penalties_std": 0.0,
-        "completion_rate": 98.46666666666665,
-        "completion_rate_std": 2.1684607956387496
+        "completion_rate": 97.46666666666665,
+        "completion_rate_std": 1.7987650084309406
       }
     },
     "monte_carlo": {
@@ -73,14 +73,14 @@
           1,
           2
         ],
-        "reward": 5.639333333333333,
-        "reward_std": 1.4361544330452614,
-        "steps": 15.220666666666666,
-        "steps_std": 1.2950761453374944,
+        "reward": 5.294666666666667,
+        "reward_std": 0.7338888804777527,
+        "steps": 15.50933333333333,
+        "steps_std": 0.6550813350688259,
         "penalties": 0.0,
         "penalties_std": 0.0,
-        "completion_rate": 99.33333333333333,
-        "completion_rate_std": 0.6798692684790346
+        "completion_rate": 99.06666666666666,
+        "completion_rate_std": 0.377123616632824
       }
     },
     "dqn": {

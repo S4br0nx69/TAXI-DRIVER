@@ -1,26 +1,6 @@
 """Agent Deep Q-Learning (DQN) pour Taxi-v3/v4.
-Utilise un réseau de neurones PyTorch pour approximer la Q-function,
-un replay buffer pour stabiliser l'entraînement,
-et un target network pour réduire l'instabilité.
-
-Corrections / ajouts apportés (cf. revue de code) :
-- env_version par défaut passé à "v3".
-- Ajout d'un paramètre `seed` optionnel sur train()/test() : fixe random,
-  numpy ET torch (CPU + CUDA si disponible), pour rendre l'entraînement
-  reproductible — ce qui n'existait pas du tout auparavant.
-- test() retourne un dict avec métriques agrégées + listes brutes par
-  épisode (permet de calculer un écart-type, impossible avant).
-- Avertissement si epsilon reste élevé en fin d'entraînement.
-- Option `use_factored_encoding` (désactivée par défaut, donc comportement
-  identique à l'original) : l'encodage one-hot actuel donne à chaque état un
-  vecteur orthogonal aux autres, ce qui prive le réseau de toute possibilité
-  de généralisation inter-états (deux états voisins dans la grille n'ont
-  aucune similarité dans leur représentation). Activer ce flag remplace
-  l'encodage par un vecteur factorisé (position taxi, position passager,
-  destination) qui restaure une vraie capacité de généralisation — utile
-  pour vérifier dans quelle mesure l'égalité observée DQN ≈ Q-Learning sur
-  Taxi-v3 est un artefact du choix d'encodage plutôt qu'une propriété
-  intrinsèque de l'environnement.
+Réseau de neurones PyTorch pour approximer la Q-function, replay buffer + target network pour stabiliser l'entraînement.
+Historique des corrections (seed torch, test() en dict, use_factored_encoding) : voir BENCHMARK.md.
 """
 
 import gymnasium as gym
@@ -58,10 +38,7 @@ class QNetwork(nn.Module):
 
 
 class DuelingQNetwork(nn.Module):
-    """Architecture Dueling DQN : sépare la Q-function en V(s) et A(s,a).
-    Q(s,a) = V(s) + A(s,a) - mean_a'(A(s,a'))
-    Efficace quand beaucoup d'actions ont la même valeur (ex. milieu de trajet Taxi).
-    """
+    """Dueling DQN : Q(s,a) = V(s) + A(s,a) - mean(A) — efficace quand plusieurs actions ont la même valeur."""
     def __init__(self, state_size, action_size, hidden_sizes=(128, 64)):
         super().__init__()
         shared_layers = []
@@ -169,16 +146,13 @@ class DQNAgent:
         return optim.Adam(self.policy_net.parameters(), lr=self.lr)
 
     def _rebuild_networks_for_encoding(self):
-        """À appeler si use_factored_encoding ou dueling est changé après __init__ :
-        la taille d'entrée et l'architecture du réseau peuvent changer, donc les
-        réseaux et l'optimiseur doivent être reconstruits."""
+        """À appeler après un changement de use_factored_encoding/dueling : reconstruit réseaux + optimiseur."""
         self.encoded_state_size = 4 if self.use_factored_encoding else self.state_size
         self._build_networks()
         self.optimizer = self._build_optimizer()
 
     def _encode_state(self, state):
-        """Encode un état entier soit en one-hot, soit en vecteur factorisé
-        selon self.use_factored_encoding (cf. note en tête de fichier)."""
+        """Encode un état entier en one-hot ou en vecteur factorisé selon self.use_factored_encoding."""
         if self.use_factored_encoding:
             taxi_row, taxi_col, pass_idx, dest_idx = self.env.unwrapped.decode(state)
             return np.array([
@@ -239,12 +213,7 @@ class DQNAgent:
         return loss.item()
 
     def train(self, train_episodes=25000, training_graph=False, seed=None):
-        """Entraîne l'agent DQN. Retourne un np.array des rewards par épisode.
-
-        seed : si fourni, fixe random, numpy ET torch (CPU + CUDA si
-        disponible), et initialise le RNG de l'environnement une seule fois
-        au premier reset.
-        """
+        """Entraîne l'agent DQN, retourne un np.array des rewards (seed fixe aussi torch/CUDA)."""
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)

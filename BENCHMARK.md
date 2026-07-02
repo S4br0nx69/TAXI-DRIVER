@@ -218,10 +218,10 @@ Re-run complet du benchmark avec les implémentations finalisées. Les paramètr
 
 La validation sur 3–4 seeds des top candidats du grid search a conduit à réviser les paramètres de SARSA, Monte Carlo et DQN.
 
-| Modèle | Paramètres (26 juin) | Paramètres corrigés (30 juin) | Ce qui a changé |
-|--------|---------------------|-------------------------------|----------------|
+| Modèle     | Paramètres (26 juin) | Paramètres corrigés (30 juin) | Ce qui a changé |
+|--------    |---------------------|-------------------------------|----------------|
 | Q-Learning | α=0.05, γ=0.99, ε-decay=0.999 | α=0.05, γ=0.99, ε-decay=0.999 | — Inchangé |
-| SARSA | α=0.1, γ=0.9, ε-decay=0.999, expected, n_steps=1 | α=0.1, **γ=0.99**, ε-decay=**0.9995**, **epsilon_greedy, n_steps=3** | γ, policy_type, n_steps |
+| SARSA      | α=0.1, γ=0.9, ε-decay=0.999, expected, n_steps=1 | α=0.1, **γ=0.99**, ε-decay=**0.9995**, **epsilon_greedy, n_steps=3** | γ, policy_type, n_steps |
 | Monte Carlo | α=0.1, γ=0.99, ε-decay=0.9995, **every_visit** | α=0.1, **γ=0.95**, ε-decay=**0.9997**, **first_visit** | γ, ε-decay, visit_mode |
 | DQN | lr=0.0005, **γ=0.99**, batch=32, adam | lr=0.0005, **γ=0.95**, batch=32, adam | γ |
 
@@ -271,3 +271,68 @@ Le paramètre le plus influent par algorithme, revisité :
 - **SARSA** : `gamma` + `n_steps` — γ=0.99 et retour 3-step sont décisifs
 - **Monte Carlo** : `gamma` — 0.99 trop instable, 0.95 est l'optimum confirmé multi-seeds
 - **DQN** : robuste par nature, insensible aux ajustements de cette amplitude
+
+---
+
+## 9. Annexe technique — pipeline de fine-tuning
+
+Le code source garde des commentaires courts (une ligne par point) ; cette section rassemble le détail : comment tourne le pipeline, ce que fait chaque hyperparamètre, et l'historique des bugs corrigés.
+
+### 9.1 Deux outils, deux portées
+
+- **`grid_search.py`** : script autonome, Q-Learning uniquement, grille fixe codée en dur (`alpha` × `gamma` × `epsilon_decay`, 48 combinaisons). Premier outil de fine-tuning du projet, conservé pour un balayage rapide et isolé.
+- **`benchmark.py`** : orchestrateur général des 4 modèles, en 4 phases indépendantes et rejouables (chaque phase lit/écrit son propre JSON dans `results/`) :
+
+  | Phase | Rôle | Dépend de |
+  |-------|------|-----------|
+  | `baseline` | Évalue chaque modèle avec ses params par défaut (`DEFAULT_PARAMS`) — le point de référence t=0 | rien |
+  | `grid` | Explore `GRID_PARAMS` par produit cartésien, par modèle | rien (mais comparé à `baseline` en phase 4) |
+  | `final` | Ré-entraîne avec les meilleurs params trouvés en `grid` | `results/grid_search.json` |
+  | `compare` | Charge `baseline.json` + `final.json`, produit le graphe et le tableau avant/après | `results/baseline.json` + `results/final.json` |
+
+### 9.2 Pourquoi multi-seeds (`run_model`, `--repeats`)
+
+Un seul run d'entraînement dépend de l'initialisation aléatoire (Q-table, ordre des transitions explorées) : la « meilleure » combinaison d'un balayage à 1 seed peut n'être meilleure que par chance de tirage, pas par qualité réelle des hyperparamètres. `run_model()` (dans `benchmark.py`) et l'option `--repeats` (dans `grid_search.py`) répètent l'entraînement sur plusieurs seeds et moyennent les métriques, avec un écart-type (`*_std`) qui permet de juger si un écart entre deux configurations est significatif ou n'est que du bruit.
+
+`phase_grid()` applique cette idée en deux temps pour limiter le coût : un balayage large à 1 seed sert de présélection (`--grid-seed`), puis seules les `--refine-top-k` meilleures combinaisons sont ré-évaluées sur plusieurs seeds (`--refine-seeds`) pour départager le vrai meilleur. La section 8.2 documente un cas concret où ce raffinement a changé le classement (SARSA `expected` semblait meilleur à seed unique, `epsilon_greedy` + n_steps=3 gagne en réalité sur 4 seeds).
+
+### 9.3 Glossaire des hyperparamètres de fine-tuning
+
+**Communs aux 4 modèles**
+- `alpha` : taux d'apprentissage — vitesse à laquelle la Q-table intègre une nouvelle estimation.
+- `gamma` : facteur de discount — poids donné aux récompenses futures vs immédiates.
+- `epsilon_decay` : vitesse de décroissance de l'exploration (epsilon-greedy) au fil des épisodes.
+
+**Q-Learning**
+- `optimistic_init` : valeur initiale de la Q-table (0 = neutre, >0 = optimiste, force l'exploration initiale).
+- `double_q` : Double Q-Learning — deux Q-tables pour réduire le biais de surestimation du max.
+
+**SARSA**
+- `policy_type` : `epsilon_greedy` (standard), `softmax` (sélection par distribution Boltzmann via `temperature`), `expected` (bootstrap sur la valeur espérée sous la politique plutôt que sur l'action suivante réellement choisie).
+- `n_steps` : 1 = SARSA standard, n>1 = retour sur n pas avant bootstrap (horizon plus long, plus de variance).
+- `lambda_` : SARSA(λ), traces d'éligibilité — généralise SARSA (λ=0) et Monte Carlo (λ→1), propage la récompense sur tout le chemin de l'épisode.
+
+**Monte Carlo**
+- `visit_mode` : `first_visit` (met à jour Q seulement à la première occurrence d'une paire état-action dans l'épisode) vs `every_visit` (à chaque occurrence).
+- `exploring_starts` : démarre chaque épisode sur un couple (état, action) aléatoire, pour garantir la couverture de l'espace sans dépendre uniquement d'epsilon.
+
+**DQN**
+- `optimizer_type` : `adam`, `rmsprop`, `sgd` — algorithme d'optimisation du réseau.
+- `hidden_sizes` : architecture des couches cachées du réseau.
+- `double_dqn` : le réseau policy choisit l'action, le réseau target l'évalue — réduit la surestimation.
+- `dueling` : sépare l'estimation en deux flux V(s) (valeur de l'état) et A(s,a) (avantage de l'action) — utile quand plusieurs actions ont une valeur proche.
+- `tau` : soft update du target network (0 = copie périodique complète, >0 = mélange continu τ·θ_policy + (1-τ)·θ_target).
+- `use_factored_encoding` (flag, désactivé par défaut) : remplace l'encodage one-hot de l'état (qui rend chaque état orthogonal aux autres, sans généralisation possible) par un vecteur factorisé (position taxi / passager / destination), pour vérifier si l'égalité de performance DQN ≈ Q-Learning observée sur Taxi-v3 est un artefact de l'encodage.
+
+### 9.4 Historique des bugs corrigés
+
+- **SARSA — `policy_type` ignoré en n-step et en λ** : `_train_nstep()` et `_train_lambda()` bootstrapaient toujours sur `Q[s', a']` (SARSA standard) même quand `policy_type='expected'` était configuré. Le paramètre n'avait donc aucun effet dès que `n_steps>1`. Corrigé en appelant `_expected_value()` dans le bootstrap final quand `policy_type='expected'`.
+- **Monte Carlo — `first_visit` était en réalité un `last-visit`** : l'implémentation parcourait l'épisode à l'envers en marquant les paires (état, action) comme « déjà vues » au fur et à mesure, ce qui faisait déclencher la mise à jour sur la *dernière* occurrence chronologique plutôt que la première. Corrigé par un calcul en deux passes : une passe avant identifie l'indice de la première occurrence de chaque paire, puis la passe arrière habituelle (nécessaire pour calculer le retour cumulé G) ne met à jour Q qu'à cet indice en mode `first_visit`. Ce bug explique une bonne partie de la sous-performance spectaculaire de `first_visit` observée avant correction.
+- **Crash post-fusion avec `main` (ajout de `completion_rate`)** : le passage de `test()` d'un tuple `(steps, penalties, reward)` à un dict (`{'steps', 'penalties', 'reward', 'completion_rate'}`) sur les 4 agents n'avait pas été répercuté partout. `grid_search.py` et `tests/test_agents.py` continuaient à déballer 3 valeurs (`ValueError: too many values to unpack`), cassant l'exécution et la CI. `benchmark.py` était déjà correct. Corrigé en passant ces deux fichiers à l'accès par clés.
+- **Couverture de tests DQN manquante** : `tests/test_agents.py` avait un test d'entraînement pour Q-Learning, SARSA et Monte Carlo, mais aucun pour DQN — un bug dans `deep_q_learning.py` (import, constructeur, contrat de retour de `test()`) serait passé inaperçu en CI. Ajout de `test_dqn_train()` et `test_dqn_test_returns_dict()` sur le même modèle que les 3 autres.
+
+### 9.5 Limites connues du grid search (non corrigées, choix de scope)
+
+- `epsilon_decay=0.9999` combiné à un budget de 10 000 épisodes laisse ~37 % d'exploration résiduelle en fin d'entraînement (`epsilon_min` jamais atteint) : une combinaison avec cette valeur peut sembler sous-performante simplement parce qu'elle n'a pas fini de converger.
+- Le grid SARSA ne couvre pas la même plage de `gamma` que Q-Learning/Monte Carlo (0.9/0.99 contre 0.6/0.8/0.99) : la comparaison inter-algorithmes sur l'effet de gamma n'est donc pas totalement équitable.
+- Le grid DQN n'explore pas `epsilon_decay`, `target_update`, ni la taille du replay buffer ou l'architecture du réseau — tous fixés à leur valeur par défaut.

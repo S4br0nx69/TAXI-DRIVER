@@ -57,6 +57,28 @@ def test_montecarlo_train():
     assert len(rewards) == 100
 
 
+def test_dqn_train():
+    """DQN s'entraîne et retourne un array de rewards."""
+    sys.path.insert(0, 'deep_Q_learning')
+    import deep_q_learning as Agent
+    agent = Agent.DQNAgent('ansi')
+    rewards = agent.train(train_episodes=100, training_graph=False)
+    assert isinstance(rewards, np.ndarray)
+    assert len(rewards) == 100
+
+
+def test_dqn_test_returns_dict():
+    """DQN.test() retourne bien un dict avec les clés attendues (contrat commun aux 4 agents)."""
+    sys.path.insert(0, 'deep_Q_learning')
+    import deep_q_learning as Agent
+    agent = Agent.DQNAgent('ansi')
+    agent.train(train_episodes=100, training_graph=False)
+    result = agent.test(test_episodes=5, fast_testing=True)
+    assert isinstance(result, dict)
+    for key in ('steps', 'penalties', 'reward', 'completion_rate'):
+        assert key in result
+
+
 def test_utils_safe_input_int(monkeypatch):
     """safe_input_int gère les entrées invalides."""
     from utils import safe_input_int

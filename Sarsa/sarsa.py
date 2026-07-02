@@ -1,23 +1,6 @@
 """Agent SARSA (State-Action-Reward-State-Action) pour Taxi-v3/v4.
-Algorithme on-policy : la mise à jour utilise l'action réellement choisie au
-step suivant, contrairement au Q-Learning qui utilise le max.
-
-Corrections apportées (cf. revue de code) :
-- BUG CORRIGÉ : _train_nstep() ignorait totalement self.policy_type et
-  bootstrapait toujours en SARSA n-step standard (Q[s', a']), même quand
-  policy_type='expected' était injecté. Concrètement, sur les combinaisons
-  n_steps=3 du grid search, 'expected' et 'epsilon_greedy' produisaient un
-  comportement d'update strictement identique — seule la sélection d'action
-  (qui est déjà la même pour les deux) intervenait, donc le paramètre
-  policy_type n'avait aucun effet réel quand n_steps>1. Le bootstrap utilise
-  maintenant _expected_value() quand policy_type='expected', y compris en
-  n-step.
-- env_version par défaut passé à "v3".
-- Ajout d'un paramètre `seed` optionnel sur train()/test() (random, numpy,
-  RNG de l'environnement).
-- test() retourne un dict avec métriques agrégées + listes brutes par
-  épisode (permet de calculer un écart-type, impossible avant).
-- Avertissement si epsilon reste élevé en fin d'entraînement.
+Algorithme on-policy : la mise à jour utilise l'action réellement choisie au step suivant (≠ Q-Learning qui prend le max).
+Historique des corrections (bug policy_type ignoré en n-step, seed, test() en dict) : voir BENCHMARK.md.
 """
 
 import gymnasium as gym
@@ -72,13 +55,7 @@ class Sarsa:
         return np.argmax(self.q_table[state])
 
     def _expected_value(self, state):
-        """Valeur espérée sous politique epsilon-greedy (pour Expected SARSA).
-
-        NB : cette formule suppose une politique de comportement
-        epsilon-greedy. Elle n'est pas définie pour policy_type='softmax' —
-        ce cas n'est de toute façon jamais combiné avec 'expected' dans le
-        grid search actuel.
-        """
+        """Valeur espérée sous politique epsilon-greedy (pour Expected SARSA) — non définie pour 'softmax'."""
         q_values = self.q_table[state]
         n_actions = self.env.action_space.n
         best_action = np.argmax(q_values)
@@ -165,10 +142,7 @@ class Sarsa:
         return reward_per_episode
 
     def _train_lambda(self, train_episodes, training_graph, seed=None):
-        """SARSA(λ) avec traces d'éligibilité accumulantes (Sutton & Barto ch.12).
-        Généralise SARSA standard (λ=0) et Monte Carlo (λ→1).
-        Propage le signal de récompense sur tout le chemin parcouru en un épisode.
-        """
+        """SARSA(λ) avec traces d'éligibilité (Sutton & Barto ch.12) — généralise SARSA (λ=0) et Monte Carlo (λ→1)."""
         n_states  = self.env.observation_space.n
         n_actions = self.env.action_space.n
 
@@ -243,13 +217,7 @@ class Sarsa:
         return reward_per_episode
 
     def _train_nstep(self, train_episodes, training_graph, seed=None):
-        """Entraînement n-step SARSA (algorithme tabulaire, Sutton & Barto ch.7).
-
-        FIX : le bootstrap final respecte maintenant policy_type. Avant, cette
-        méthode utilisait toujours Q[s_{tau+n}, a_{tau+n}] (SARSA n-step
-        standard), même si policy_type='expected' était demandé — ce qui
-        rendait ce paramètre sans effet dès que n_steps>1.
-        """
+        """Entraînement n-step SARSA (algorithme tabulaire, Sutton & Barto ch.7)."""
         n = self.n_steps
         reward_per_episode = np.zeros(train_episodes)
         steps_per_episode = np.zeros(train_episodes)
@@ -294,7 +262,7 @@ class Sarsa:
                     G = sum(self.gamma ** (i - tau - 1) * rewards[i]
                             for i in range(tau + 1, min(tau + n, T) + 1))
                     if tau + n < T:
-                        # FIX : bootstrap conforme à policy_type, y compris en n-step.
+                        # bootstrap conforme à policy_type, y compris en n-step
                         if self.policy_type == 'expected':
                             bootstrap = self._expected_value(states[tau + n])
                         else:

@@ -6,27 +6,9 @@ Usage:
     python benchmark.py final    [--train-episodes N] [--test-episodes N] [--seeds 0,1,2] [--no-interactive]
     python benchmark.py compare
 
-Corrections apportées (cf. revue de code) :
-- run_model() accepte maintenant une liste de seeds et agrège (moyenne +
-  écart-type INTER-seed) sur chacune des métriques. Avant, chaque run était
-  unique et non reproductible (aucun seed nulle part) : le classement final
-  entre modèles ne reposait sur aucune mesure de dispersion, ce qui rendait
-  impossible de distinguer un vrai écart de performance d'un simple bruit
-  d'initialisation.
-- phase_baseline() et phase_final() utilisent plusieurs seeds par défaut
-  (--seeds, ex: "0,1,2") : les JSON produits contiennent maintenant
-  metric_std pour chaque métrique, et les graphes affichent des barres
-  d'erreur.
-- phase_grid() corrige le problème d'argmax sur un run unique bruité : le
-  balayage initial reste à 1 seed par combinaison (coût), mais les
-  --refine-top-k meilleures combinaisons (par reward) sont ensuite
-  ré-évaluées sur --refine-seeds seeds avant de désigner le "meilleur" —
-  on choisit donc le meilleur en espérance, pas par chance de tirage.
-  Le JSON conserve maintenant 'refined_top_candidates' en plus de
-  'all_results', pour audit.
-- Les fonctions de plotting (_plot_snapshot, phase_compare) affichent des
-  barres d'erreur (yerr) quand les champs *_std sont présents, avec un
-  fallback à 0 pour rester compatible avec d'anciens fichiers JSON sans std.
+Pipeline en 4 phases indépendantes et rejouables : baseline (params par défaut) →
+grid (recherche des meilleurs params) → final (re-run avec ces params) → compare
+(graphe + tableau avant/après). Détails et rationale des choix : voir BENCHMARK.md.
 """
 
 import sys
@@ -114,24 +96,8 @@ DEFAULT_PARAMS = {
     },
 }
 
-# Espace de recherche par modèle — seuls les hyperparamètres qui ont un vrai
-# impact sur Taxi sont inclus. Le produit cartésien de chaque liste génère
-# toutes les combinaisons à tester (voir phase_grid).
-# Pour réduire le temps de run : raccourcir les listes ou baisser --train-episodes.
-#
-# LIMITES CONNUES (documentées, non corrigées ici car ce sont des choix de
-# scope plutôt que des bugs) :
-# - epsilon_decay=0.9999 combiné à 10 000 épisodes laisse ~37% d'exploration
-#   résiduelle en fin d'entraînement (epsilon_min=0.01 jamais atteint) : une
-#   combinaison avec cette valeur peut sembler sous-performante simplement
-#   parce qu'elle n'a pas fini de converger, pas parce que le reste de ses
-#   hyperparamètres est mauvais. train() affiche maintenant un avertissement
-#   explicite dans ce cas (voir les fichiers des agents).
-# - Le grid SARSA ne couvre pas la même plage de gamma que Q-Learning/MC
-#   (0.9/0.99 contre 0.6/0.8/0.99) : une comparaison inter-algorithmes sur
-#   "l'effet de gamma" n'est donc pas totalement équitable en l'état.
-# - Le grid DQN n'explore pas epsilon_decay, target_update, ni la taille du
-#   replay buffer ou l'architecture du réseau — tous fixés à leur défaut.
+# Espace de recherche par modèle : produit cartésien de chaque liste (voir phase_grid).
+# Limites connues du scope (epsilon_decay non convergé, grids inégaux entre modèles) : voir BENCHMARK.md.
 GRID_PARAMS = {
     # Q-Learning : 3×3×3×2×2 = 108 combinaisons de base
     # optimistic_init : valeur initiale Q-table (0=neutre, 1=optimiste)
@@ -249,10 +215,7 @@ def interactive_model_selection():
 
 
 def interactive_episode_config(selected_models, default_train, default_test):
-    """Demande les épisodes d'entraînement et de test séparément pour chaque modèle.
-    Les valeurs par défaut sont calibrées par algorithme (MODEL_EPISODE_DEFAULTS).
-    default_train/default_test servent de fallback pour un modèle absent du dict.
-    """
+    """Demande les épisodes train/test par modèle (défauts calibrés par MODEL_EPISODE_DEFAULTS)."""
     print("\n--- Configuration des épisodes par modèle ---\n")
     config = {}
     for model in selected_models:
@@ -284,11 +247,7 @@ def _ask_int(prompt, default, min_val, max_val):
 # ---------------------------------------------------------------------------
 
 def _build_agent(model_name, params):
-    """Instancie un agent vierge et injecte les hyperparamètres avant l'entraînement.
-
-    Les constructeurs des agents n'acceptent pas de params en argument,
-    donc on les écrase sur l'instance après création.
-    """
+    """Instancie un agent vierge et injecte les hyperparamètres sur l'instance (constructeurs ne les acceptent pas)."""
     if model_name == 'q_learning':
         agent = QL.Taxi('ansi')
         agent.alpha           = params.get('alpha', 0.1)
@@ -327,8 +286,7 @@ def _build_agent(model_name, params):
         agent.double_dqn     = params.get('double_dqn', False)
         agent.dueling        = params.get('dueling', False)
         agent.tau            = params.get('tau', 0.0)
-        # Reconstruire les réseaux et l'optimiseur après injection des params
-        # (dueling peut changer l'architecture, lr/optimizer_type l'optimiseur)
+        # dueling change l'architecture, lr/optimizer_type l'optimiseur → reconstruire après injection
         agent._build_networks()
         agent.optimizer = agent._build_optimizer()
 
@@ -339,20 +297,7 @@ def _build_agent(model_name, params):
 
 
 def run_model(model_name, params, train_episodes, test_episodes, seeds=(None,)):
-    """Unité de travail atomique : pour chaque seed donné, crée un agent
-    vierge, l'entraîne, l'évalue. Agrège ensuite les métriques sur l'ensemble
-    des seeds (moyenne + écart-type INTER-seed).
-
-    FIX : avant, un seul run non reproductible servait de base à toute
-    décision (sélection du "meilleur" en grid search, classement final entre
-    modèles). L'écart-type inter-seed retourné ici (`*_std`) permet de juger
-    si un écart entre deux configurations est significatif ou relève du
-    bruit d'initialisation — ce qui était impossible à évaluer auparavant.
-
-    seeds : tuple de seeds. (None,) reproduit l'ancien comportement (un seul
-    run, non reproductible, pas de std calculable). Pour une comparaison
-    fiable, utiliser plusieurs seeds, ex: (0, 1, 2).
-    """
+    """Entraîne+évalue un agent vierge par seed, puis agrège (moyenne + écart-type inter-seed)."""
     per_seed_results = []
     for sd in seeds:
         agent = _build_agent(model_name, params)
@@ -364,11 +309,7 @@ def run_model(model_name, params, train_episodes, test_episodes, seeds=(None,)):
     for key in ('reward', 'steps', 'penalties', 'completion_rate'):
         values = [r[key] for r in per_seed_results]
         agg[key] = float(np.mean(values))
-        # Écart-type INTER-seed : variabilité due aux différentes
-        # initialisations/seeds d'entraînement — distinct de reward_std
-        # retourné par agent.test() qui mesure la variabilité INTRA-seed
-        # (entre les épisodes de test d'un même run).
-        agg[f'{key}_std'] = float(np.std(values)) if len(values) > 1 else 0.0
+        agg[f'{key}_std'] = float(np.std(values)) if len(values) > 1 else 0.0  # écart-type inter-seed
     return agg
 
 
@@ -377,9 +318,7 @@ def run_model(model_name, params, train_episodes, test_episodes, seeds=(None,)):
 # ---------------------------------------------------------------------------
 
 def phase_baseline(selected_models, model_config, seeds=(0,)):
-    """Capture le niveau de performance de chaque modèle avec ses params par défaut.
-    C'est le point de référence (t=0) qui permettra de mesurer le gain du fine-tuning.
-    """
+    """Capture le niveau de performance de chaque modèle avec ses params par défaut (point de référence t=0)."""
     ensure_dirs()
     print("\n=== PHASE BASELINE ===")
     print(f"Seeds : {seeds} (n={len(seeds)})\n")
@@ -406,17 +345,7 @@ def phase_baseline(selected_models, model_config, seeds=(0,)):
 
 
 def phase_grid(selected_models, model_config, grid_seed=0, refine_top_k=3, refine_seeds=(0, 1, 2, 3)):
-    """Explore l'espace des hyperparamètres de chaque modèle par produit cartésien.
-
-    FIX : le balayage initial (1 seed, pour limiter le coût) sert seulement
-    de présélection. Les `refine_top_k` meilleures combinaisons (par reward)
-    sont ensuite ré-évaluées sur `refine_seeds` seeds, et c'est cette
-    évaluation multi-seed qui désigne le "meilleur" final — évite de choisir
-    une combinaison qui n'a l'air bonne que par chance de tirage sur un
-    unique run (argmax sur run bruité).
-
-    Charge les résultats existants si le fichier existe, pour permettre un run partiel.
-    """
+    """Balayage 1-seed pour présélectionner, puis affinage multi-seeds des top-k avant de choisir le meilleur."""
     ensure_dirs()
 
     # Charge les résultats existants pour compléter un run interrompu sans tout relancer
@@ -439,14 +368,10 @@ def phase_grid(selected_models, model_config, grid_seed=0, refine_top_k=3, refin
 
         results = []
         for i, combo in enumerate(combos):
-            # Fusion avec DEFAULT_PARAMS : les hyperparamètres absents de la grille
-            # (ex. temperature pour SARSA) gardent leur valeur par défaut.
-            params = {**DEFAULT_PARAMS[model_name], **dict(zip(keys, combo))}
+            params = {**DEFAULT_PARAMS[model_name], **dict(zip(keys, combo))}  # complète avec les params fixes
             try:
                 metrics = run_model(model_name, params, cfg['train'], cfg['test'], seeds=(grid_seed,))
-                # On ne sauvegarde que les clés de la grille (pas les params fixes)
-                # pour garder all_results lisible
-                results.append({'params': dict(zip(keys, combo)), 'metrics': metrics})
+                results.append({'params': dict(zip(keys, combo)), 'metrics': metrics})  # ne garde que les clés de la grille
                 print(f"  [{i+1}/{len(combos)}] {dict(zip(keys, combo))} "
                       f"→ reward={metrics['reward']:.2f}  steps={metrics['steps']:.2f}")
             except Exception as e:
@@ -455,10 +380,7 @@ def phase_grid(selected_models, model_config, grid_seed=0, refine_top_k=3, refin
         if not results:
             continue
 
-        # FIX : ne pas désigner le "meilleur" sur l'argmax d'un balayage à
-        # un seul seed. On présélectionne les `refine_top_k` meilleures
-        # combinaisons sur ce critère, puis on les ré-évalue chacune sur
-        # plusieurs seeds pour départager le vrai meilleur en espérance.
+        # Présélection sur le balayage 1-seed, avant affinage multi-seeds ci-dessous
         results_sorted = sorted(results, key=lambda x: x['metrics']['reward'], reverse=True)
         top_candidates = results_sorted[:refine_top_k]
         print(f"\n  Affinage des {len(top_candidates)} meilleures combinaisons "
@@ -491,9 +413,7 @@ def phase_grid(selected_models, model_config, grid_seed=0, refine_top_k=3, refin
 
 
 def phase_final(selected_models, model_config, seeds=(0,)):
-    """Ré-entraîne chaque modèle avec les meilleurs params trouvés par le grid search.
-    Produit le snapshot final qui sera comparé à la baseline dans phase_compare.
-    """
+    """Ré-entraîne chaque modèle avec les meilleurs params du grid search, snapshot comparé à la baseline ensuite."""
     ensure_dirs()
 
     # Dépendance explicite : la phase final ne peut pas tourner sans le grid search
@@ -532,9 +452,7 @@ def phase_final(selected_models, model_config, seeds=(0,)):
 
 
 def phase_compare():
-    """Charge baseline.json et final.json pour générer le comparatif avant/après.
-    Produit un PNG persistant, affiche le tableau terminal, puis ouvre la fenêtre interactive.
-    """
+    """Charge baseline.json/final.json, génère le PNG comparatif + tableau terminal, puis affiche la fenêtre."""
     missing = [
         name for name, path in [('baseline', BASELINE_FILE), ('final', FINAL_FILE)]
         if not os.path.exists(path)
@@ -574,10 +492,7 @@ def phase_compare():
         before_err = [baseline['models'].get(m, {}).get('metrics', {}).get(f'{metric}_std', 0) for m in models]
         after_err  = [final['models'].get(m, {}).get('metrics', {}).get(f'{metric}_std', 0) for m in models]
 
-        # Barres "Avant" en gris neutre, "Après" avec la couleur propre à chaque modèle
-        # FIX : ajout de barres d'erreur (yerr) reflétant l'écart-type inter-seed,
-        # quand disponible (fallback à 0 pour rester compatible avec les anciens
-        # fichiers JSON sans std).
+        # "Avant" en gris neutre, "Après" coloré par modèle ; yerr = écart-type inter-seed (0 si absent)
         bars_b = ax.bar(x - width / 2, before, width, yerr=before_err, capsize=4,
                         label='Avant', color='#90A4AE', alpha=0.8)
         bars_a = ax.bar(x + width / 2, after, width, yerr=after_err, capsize=4,
@@ -618,10 +533,7 @@ def phase_compare():
 # ---------------------------------------------------------------------------
 
 def _plot_snapshot(snapshot, phase_name):
-    """Bar chart des 4 métriques pour une seule phase (baseline ou final).
-    Appelé automatiquement à la fin de chaque phase pour avoir une trace visuelle immédiate.
-    Affiche des barres d'erreur (écart-type inter-seed) quand disponibles.
-    """
+    """Bar chart des 4 métriques pour une seule phase, appelé automatiquement en fin de phase."""
     models       = list(snapshot['models'].keys())
     metric_names = ['reward', 'steps', 'penalties', 'completion_rate']
     metric_labels = {
@@ -662,11 +574,7 @@ def _plot_snapshot(snapshot, phase_name):
 
 
 def _print_summary_table(baseline, final, models, metrics):
-    """Tableau terminal : pour chaque modèle et chaque métrique, affiche
-    Avant (±std) / Après (±std) / Δ. Le delta permet de voir en un coup
-    d'œil si le fine-tuning a apporté un gain réel — et le ± permet de voir
-    si ce gain dépasse le bruit inter-seed.
-    """
+    """Tableau terminal Avant (±std) / Après (±std) / Δ par modèle et métrique."""
     col    = 20
     line_w = 14 + len(metrics) * (col * 2 + 12)
 

@@ -1,22 +1,6 @@
 """Agent Q-Learning pour Taxi-v3/v4.
-Méthode off-policy par différence temporelle (TD) : la mise à jour utilise
-le max sur les actions de l'état suivant, indépendamment de la politique suivie.
-
-Corrections apportées (cf. revue de code) :
-- env_version par défaut passé à "v3" (évite de déclencher systématiquement
-  l'exception de fallback si Taxi-v4 n'existe pas dans l'environnement
-  Gymnasium installé — c'est "v3" qui est utilisé dans tout le reste du projet).
-- Ajout d'un paramètre `seed` optionnel sur train() et test() pour la
-  reproductibilité (random, numpy, et RNG interne de l'environnement
-  Gymnasium, initialisé une seule fois au premier reset).
-- test() retourne maintenant un dict avec les métriques agrégées ET les
-  listes brutes par épisode. Avec l'ancienne signature (un tuple de moyennes),
-  il était impossible de calculer un écart-type ou un intervalle de confiance
-  après coup — la donnée brute n'existait nulle part.
-- Avertissement explicite si epsilon n'est pas descendu sous un seuil bas en
-  fin d'entraînement (signe que epsilon_decay est trop lent pour le budget
-  d'épisodes alloué — confond la comparaison d'hyperparamètres avec un simple
-  problème de convergence inachevée).
+Méthode off-policy par différence temporelle (TD) : la mise à jour utilise le max sur les actions de l'état suivant.
+Historique des corrections (env_version, seed, test() en dict, avertissement convergence) : voir BENCHMARK.md.
 """
 
 import gymnasium as gym
@@ -55,13 +39,7 @@ class Taxi:
         self.q_table2        = None   # deuxième Q-table, créée dans train() si double_q=True
 
     def train(self, train_episodes=25000, training_graph=False, seed=None):
-        """Entraîne l'agent via Q-Learning avec epsilon-greedy décroissant.
-        Retourne un np.array des rewards par épisode.
-
-        seed : si fourni, fixe random/numpy et initialise le RNG de
-        l'environnement une seule fois au premier reset (convention
-        Gymnasium), pour rendre l'entraînement reproductible.
-        """
+        """Entraîne l'agent via Q-Learning avec epsilon-greedy décroissant, retourne un np.array des rewards."""
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
@@ -145,10 +123,7 @@ class Taxi:
         print(f"  Mean steps  : {steps_per_episode.mean():.2f}")
         print(f"  Mean penalties : {penalties_per_episode.mean():.2f}")
 
-        # FIX : diagnostic de convergence d'epsilon. Un epsilon_decay trop lent
-        # pour le budget d'épisodes alloué fausse la comparaison entre
-        # hyperparamètres (l'agent n'a pas fini d'explorer, indépendamment de
-        # la qualité de alpha/gamma).
+        # epsilon_decay trop lent pour le budget d'épisodes fausse la comparaison entre hyperparamètres
         if self.epsilon > 0.05:
             print(f"  ATTENTION : epsilon final = {self.epsilon:.4f} (> 0.05). "
                   f"epsilon_decay={self.epsilon_decay} est probablement trop lent "

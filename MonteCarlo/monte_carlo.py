@@ -1,32 +1,6 @@
 """Agent Monte Carlo pour Taxi-v3/v4.
-Algorithme episodique : la mise à jour de la Q-table se fait uniquement
-à la fin de chaque épisode, en utilisant le retour cumulé réel (pas de
-bootstrapping).
-
-Correction majeure apportée (cf. revue de code) :
-- BUG CORRIGÉ : visit_mode='first_visit' ne faisait PAS du first-visit MC.
-  L'ancienne implémentation parcourait l'épisode à l'envers (de la fin vers
-  le début) en construisant un set `visited` au fur et à mesure : la
-  *dernière* occurrence chronologique d'une paire (s,a) était donc rencontrée
-  *avant* sa première occurrence dans cette boucle arrière, et c'est elle qui
-  déclenchait la mise à jour — la vraie première occurrence (rencontrée plus
-  tard dans la boucle arrière) était ensuite ignorée car déjà dans `visited`.
-  Concrètement, l'ancien "first_visit" était en réalité un "last-visit" :
-  le retour utilisé pour mettre à jour Q(s,a) était celui calculé depuis la
-  *dernière* occurrence de la paire dans l'épisode, pas la première.
-  Ce bug explique probablement une bonne partie de la sous-performance
-  spectaculaire attribuée à 'first_visit' dans le rapport (cas d'autant plus
-  fréquents que gamma est élevé et que l'epsilon_decay est lent, deux
-  conditions qui maximisent le nombre de répétitions de paires (s,a) dans un
-  épisode).
-  Le calcul se fait maintenant en deux passes : une passe avant pour
-  identifier l'indice de la première occurrence de chaque paire (s,a), puis
-  la passe arrière habituelle pour calculer G et ne mettre à jour qu'à cet
-  indice quand visit_mode='first_visit'.
-- env_version par défaut passé à "v3".
-- Ajout d'un paramètre `seed` optionnel sur train()/test().
-- test() retourne un dict avec métriques agrégées + listes brutes par épisode.
-- Avertissement si epsilon reste élevé en fin d'entraînement.
+Algorithme épisodique : la Q-table n'est mise à jour qu'en fin d'épisode, via le retour cumulé réel (pas de bootstrapping).
+Historique des corrections (bug first_visit qui était en réalité un last-visit, seed, test() en dict) : voir BENCHMARK.md.
 """
 
 import gymnasium as gym
@@ -63,8 +37,7 @@ class MonteCarlo:
 
         # Hyperparamètres individuels Monte Carlo
         self.visit_mode = 'first_visit'  # 'first_visit' ou 'every_visit'
-        self.exploring_starts = False    # démarrer chaque épisode sur un (état, action) aléatoire
-                                         # garantit la couverture de tous les (s,a) sans dépendre d'epsilon
+        self.exploring_starts = False    # démarre chaque épisode sur un (état, action) aléatoire
 
     def _choose_action(self, state):
         """Sélection epsilon-greedy."""
@@ -73,8 +46,7 @@ class MonteCarlo:
         return np.argmax(self.q_table[state])
 
     def train(self, train_episodes=25000, training_graph=False, seed=None):
-        """Entraîne l'agent via Monte Carlo (first-visit ou every-visit).
-        Retourne un np.array des rewards par épisode."""
+        """Entraîne l'agent via Monte Carlo (first-visit ou every-visit), retourne un np.array des rewards."""
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
@@ -122,21 +94,13 @@ class MonteCarlo:
                 steps += 1
                 state = next_state
 
-            # FIX : mise à jour MC en deux passes pour respecter la vraie
-            # sémantique de first_visit / every_visit.
-            #
-            # Passe 1 (avant) : indice de la PREMIÈRE occurrence chronologique
-            # de chaque paire (s, a) dans l'épisode.
+            # Passe 1 (avant) : indice de la première occurrence chronologique de chaque paire (s, a)
             first_seen = {}
             for t, (s, a, _r) in enumerate(episode):
                 if (s, a) not in first_seen:
                     first_seen[(s, a)] = t
 
-            # Passe 2 (arrière) : calcul du retour cumulé G (qui DOIT se faire
-            # en remontant l'épisode), mise à jour de Q uniquement :
-            #   - à chaque pas si every_visit
-            #   - uniquement au pas où la paire est apparue pour la première
-            #     fois si first_visit (et nulle part ailleurs)
+            # Passe 2 (arrière) : calcule G en remontant l'épisode, met à jour Q selon visit_mode
             G = 0
             for t in range(len(episode) - 1, -1, -1):
                 state_t, action_t, reward_t = episode[t]

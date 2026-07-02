@@ -1,0 +1,24 @@
+# Image de serving pour Azure Container Apps.
+# Différence avec ../Dockerfile.serve : les modèles sont EMBARQUÉS dans l'image
+# (pas de volume monté sur Azure). Reste léger : ni torch ni gymnasium.
+#
+# Build depuis le contexte de staging créé par deploy.sh (azure/.build/),
+# qui n'a pas le .dockerignore restrictif du dépôt.
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements-serve.txt .
+RUN pip install --no-cache-dir -r requirements-serve.txt
+
+# Code MLOps + modèles champions embarqués (lecture seule à l'usage).
+COPY mlops/ ./mlops/
+COPY models/ ./models/
+
+ENV PYTHONUNBUFFERED=1
+# 'auto' = meilleur champion tous algos ; ou 'sarsa', 'qlearning', 'dqn'...
+ENV TAXI_SERVE_ALGORITHM=auto
+
+EXPOSE 8000
+
+CMD ["uvicorn", "mlops.serve.app:app", "--host", "0.0.0.0", "--port", "8000"]

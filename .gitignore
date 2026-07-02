@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# MLOps — artefacts de runs (non versionnés)
+mlruns/
+mlartifacts/
+models/
+*.pth
+*.log
+
+# Azure — contexte de build temporaire (généré par azure/deploy.sh)
+azure/.build/
+
+# Sujets / documents PDF
+*.pdf
+
+# OS / éditeurs
+.DS_Store
+*.swp

@@ -1,0 +1,8 @@
+# Dépendances de l'API de serving (Phase 4).
+# Volontairement minimal : le serving ne charge que policy.npy + numpy,
+# ni torch ni gymnasium ne sont nécessaires à l'inférence.
+numpy
+PyYAML==6.0.2
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4

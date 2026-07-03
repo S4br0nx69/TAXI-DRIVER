@@ -20,9 +20,6 @@ models/
 # Azure — contexte de build temporaire (généré par azure/deploy.sh)
 azure/.build/
 
-# Sujets / documents PDF
-*.pdf
-
 # OS / éditeurs
 .DS_Store
 *.swp
